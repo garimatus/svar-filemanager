@@ -9,7 +9,7 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@svar-ui/svelte-filemanager": "2.6.0",
-		"@svar-ui/svelte-core": "2.5.0"
+		"@svar-ui/svelte-core": "2.6.0",
+		"@svar-ui/svelte-filemanager": "2.6.0"
 	}
 }
