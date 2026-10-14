@@ -1,3 +1,3 @@
-import RestDataProvider from "./RestDataProvider";
+import RestDataProvider from './RestDataProvider'
 
-export { RestDataProvider };
+export { RestDataProvider }
