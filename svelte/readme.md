@@ -27,18 +27,18 @@
 
 ### :sparkles: Key features:
 
--   Basic file operations: create, delete, copy, rename, cut, paste
--   Download and upload files
--   Files tree view
--   List and tiles views
--   File preview pane with file information (file size, type, modified date, etc)
--   Split view to manage files between different locations
--   Built-in search box
--   Context menu and toolbar
--   Keyboard navigation
--   Used storage info
--   Easy customization
--   Full TypeScript support
+- Basic file operations: create, delete, copy, rename, cut, paste
+- Download and upload files
+- Files tree view
+- List and tiles views
+- File preview pane with file information (file size, type, modified date, etc)
+- Split view to manage files between different locations
+- Built-in search box
+- Context menu and toolbar
+- Keyboard navigation
+- Used storage info
+- Easy customization
+- Full TypeScript support
 
 ### :hammer_and_pick: How to Use
 
@@ -46,19 +46,19 @@ To use SVAR Svelte File Manager, simply import the package and include the compo
 
 ```svelte
 <script>
-	import { FileManager } from "@svar-ui/svelte-filemanager";
+	import { FileManager } from '@svar-ui/svelte-filemanager'
 
 	const data = [
 		{
-			id: "/Code",
+			id: '/Code',
 			date: new Date(2023, 11, 2, 17, 25),
-			type: "folder",
+			type: 'folder',
 		},
-	];
+	]
 	const driver = {
 		used: 15200000000,
 		total: 50000000000,
-	};
+	}
 </script>
 
 <Filemanager {data} drive={getDrive()} />
@@ -78,13 +78,13 @@ Typically, you don't need to modify the code. However, if you wish to do so, fol
 To run the test:
 
 1. Start the test examples with:
-    ```sh
-    yarn start:tests
-    ```
+   ```sh
+   yarn start:tests
+   ```
 2. In a separate console, run the end-to-end tests with:
-    ```sh
-    yarn test:cypress
-    ```
+   ```sh
+   yarn test:cypress
+   ```
 
 ### :speech_balloon: Need Help?
 

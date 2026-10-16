@@ -4,56 +4,53 @@
 		popupContainer,
 		Button,
 		Segmented,
-	} from "@svar-ui/svelte-core";
+	} from '@svar-ui/svelte-core'
 
-	import Router from "./Router.svelte";
-	import Link from "./Link.svelte";
-	import { getLinks } from "./helpers";
-	import { GitHubLogoIcon, LogoIcon } from "../assets/icons/index";
+	import Router from './Router.svelte'
+	import Link from './Link.svelte'
+	import { getLinks } from './helpers'
+	import { GitHubLogoIcon, LogoIcon } from '../assets/icons/index'
 
-	const { publicName, skins, productTag, productLink } = $props();
-	let skin = $state(skins[0].id);
-	let title = $state("");
-	let link = $state("");
-	let show = $state(true);
-	let innerWidth = $state(0);
+	const { publicName, skins, productTag, productLink } = $props()
+	let skin = $state(skins[0].id)
+	let title = $state('')
+	let link = $state('')
+	let show = $state(true)
+	let innerWidth = $state(0)
 
-	const links = getLinks();
+	const links = getLinks()
 
-	const MOBILE_BREAKPOINT = 767;
+	const MOBILE_BREAKPOINT = 767
 
-	const isMobileView = $derived(innerWidth <= MOBILE_BREAKPOINT);
+	const isMobileView = $derived(innerWidth <= MOBILE_BREAKPOINT)
 
 	const skinSettings = $derived(
-		Object.assign(
-			skinSettings,
-			(skins.find(a => a.id === skin) || {}).props
-		)
-	);
+		Object.assign(skinSettings, (skins.find(a => a.id === skin) || {}).props)
+	)
 
 	function changeSkin({ value }) {
-		skin = value;
+		skin = value
 	}
 
 	function toggleSidebar() {
-		show = !show;
+		show = !show
 	}
 
 	function updateInfo(ev) {
-		skin = ev.skin;
-		title = ev.title;
-		link = ev.link;
+		skin = ev.skin
+		title = ev.title
+		link = ev.link
 	}
 
 	$effect(() => {
 		if (isMobileView && title) {
-			show = false;
+			show = false
 		}
-	});
+	})
 
 	$effect(() => {
-		document.body.className = `wx-${skin}-theme`;
-	});
+		document.body.className = `wx-${skin}-theme`
+	})
 </script>
 
 <svelte:window bind:innerWidth />
@@ -75,11 +72,7 @@
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<img
-							src={LogoIcon}
-							alt="Logo icon"
-							class="box-title-img"
-						/></a
+						<img src={LogoIcon} alt="Logo icon" class="box-title-img" /></a
 					>
 					<div class="separator"></div>
 					<a
@@ -101,11 +94,7 @@
 			</div>
 			<div class="box-links">
 				{#each links as data (data[0])}
-					<Link
-						{data}
-						{skin}
-						onclick={() => isMobileView && (show = false)}
-					/>
+					<Link {data} {skin} onclick={() => isMobileView && (show = false)} />
 				{/each}
 			</div>
 		</div>
@@ -152,25 +141,16 @@
 								{@const Icon = option.icon}
 								<Icon />
 								{#if !isMobileView}
-									<span style="margin-left:4px;"
-										>{option.label}</span
-									>
+									<span style="margin-left:4px;">{option.label}</span>
 								{/if}
 							{/snippet}
 						</Segmented>
 					</div>
 					<div class="btn-box">
-						<a
-							href={link}
-							target="_blank"
-							rel="noopener noreferrer"
-						>
+						<a href={link} target="_blank" rel="noopener noreferrer">
 							<Button type="secondary" css="toggle-btn link-btn">
 								<div>
-									<img
-										src={GitHubLogoIcon}
-										alt="GitHub icon"
-									/>
+									<img src={GitHubLogoIcon} alt="GitHub icon" />
 								</div>
 								{#if !isMobileView}
 									<span>See code on GitHub</span>
@@ -575,9 +555,7 @@
 		}
 	}
 
-	:global(.wx-willow-dark-theme)
-		.segmented-box
-		:global(div.segmented-themes) {
+	:global(.wx-willow-dark-theme) .segmented-box :global(div.segmented-themes) {
 		background-color: var(--demo-segmented-bg);
 	}
 </style>

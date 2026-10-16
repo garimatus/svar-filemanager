@@ -1,42 +1,42 @@
 <script>
-	import { getContext } from "svelte";
-	import { delegateClick, setID } from "@svar-ui/lib-dom";
-	import { getSelectionOnNavigation } from "@svar-ui/filemanager-store";
-	import Icon from "./ui/Icon.svelte";
+	import { getContext } from 'svelte'
+	import { delegateClick, setID } from '@svar-ui/lib-dom'
+	import { getSelectionOnNavigation } from '@svar-ui/filemanager-store'
+	import Icon from './ui/Icon.svelte'
 
-	let { panel } = $props();
+	let { panel } = $props()
 
-	const api = getContext("filemanager-store");
-	const _ = getContext("wx-i18n").getGroup("filemanager");
+	const api = getContext('filemanager-store')
+	const _ = getContext('wx-i18n').getGroup('filemanager')
 
-	const { panels } = api.getReactiveState();
-	const files = $derived($panels[panel]._files);
-	const crumbs = $derived($panels[panel]._crumbs);
+	const { panels } = api.getReactiveState()
+	const files = $derived($panels[panel]._files)
+	const crumbs = $derived($panels[panel]._crumbs)
 
 	function click(id) {
-		const selectedId = getSelectionOnNavigation(id, crumbs);
-		api.exec("set-path", {
+		const selectedId = getSelectionOnNavigation(id, crumbs)
+		api.exec('set-path', {
 			id,
 			panel,
 			...(selectedId && { selected: [selectedId] }),
-		});
+		})
 	}
 
-	let loading = $state(null);
+	let loading = $state(null)
 
 	$effect(() => {
-		if (files) loading = null;
-	});
+		if (files) loading = null
+	})
 
 	function refresh() {
-		loading = true;
-		api.exec("request-data", {
+		loading = true
+		api.exec('request-data', {
 			id: crumbs[crumbs.length - 1].id,
-		});
+		})
 		//if data was not loaded - stop spinner anyway
 		setTimeout(() => {
-			loading = null;
-		}, 5000);
+			loading = null
+		}, 5000)
 	}
 </script>
 
@@ -53,7 +53,7 @@
 			<Icon name="angle-right" />
 		{/if}
 		<div class="wx-item" data-id={setID(crumb.id)} data-menu-ignore="true">
-			{crumb.id == "/" ? _(crumb.name) : crumb.name}
+			{crumb.id == '/' ? _(crumb.name) : crumb.name}
 		</div>
 	{/each}
 </div>

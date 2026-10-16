@@ -1,62 +1,62 @@
 <script>
-	import { getContext } from "svelte";
+	import { getContext } from 'svelte'
 
-	import { Button } from "@svar-ui/svelte-core";
-	import { DropDownMenu, registerMenuItem } from "@svar-ui/svelte-menu";
+	import { Button } from '@svar-ui/svelte-core'
+	import { DropDownMenu, registerMenuItem } from '@svar-ui/svelte-menu'
 
-	import Tree from "./Tree/Tree.svelte";
-	import Drive from "./Drive.svelte";
-	import UploadButton from "./UploadButton.svelte";
+	import Tree from './Tree/Tree.svelte'
+	// import Drive from './Drive.svelte'
+	import UploadButton from './UploadButton.svelte'
 
-	let { readonly, menuOptions } = $props();
+	let { readonly, menuOptions } = $props()
 
-	const _ = getContext("wx-i18n").getGroup("filemanager");
-	const { showPrompt } = getContext("filemanager-modals");
+	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const { showPrompt } = getContext('filemanager-modals')
 
-	registerMenuItem("upload", UploadButton);
+	registerMenuItem('upload', UploadButton)
 
 	function handleClick({ action }) {
 		if (action) {
-			if (action.id === "add-file")
+			if (action.id === 'add-file')
 				showPrompt({
 					item: {
-						type: "file",
+						type: 'file',
 						size: 0,
 						date: new Date(),
 					},
 					add: true,
-				});
-			else if (action.id === "add-folder")
+				})
+			else if (action.id === 'add-folder')
 				showPrompt({
 					item: {
-						type: "folder",
+						type: 'folder',
 						date: new Date(),
 					},
 					add: true,
-				});
+				})
 		}
 	}
 
 	let options = $derived(
-		menuOptions("add").map(option => {
-			option.text = _(option.text);
-			return option;
+		menuOptions('add').map(option => {
+			option.text = _(option.text)
+			return option
 		})
-	);
+	)
 </script>
 
 <div class="wx-wrapper">
 	{#if !readonly}
 		<div class="wx-button">
 			<DropDownMenu {options} at="bottom-fit" onclick={handleClick}>
-				<Button type="primary block">{_("Add New")}</Button>
+				<Button type="primary block">{_('Add New')}</Button>
 			</DropDownMenu>
 		</div>
 	{/if}
 	<div class="wx-tree">
 		<Tree />
 	</div>
-	<Drive />
+	<!-- <Drive /> -->
 </div>
 
 <style>

@@ -1,33 +1,33 @@
 const cases = [
-	"/base/:skin",
-	"/selection/:skin",
-	"/context/:skin",
-	"/readonly/:skin",
-	"/custom-styles/:skin",
-	"/simple-icons/:skin",
-	"/locales/:skin",
-	"/api/:skin",
-	"/extra-info/:skin",
+	'/base/:skin',
+	'/selection/:skin',
+	'/context/:skin',
+	'/readonly/:skin',
+	'/custom-styles/:skin',
+	'/simple-icons/:skin',
+	'/locales/:skin',
+	'/api/:skin',
+	'/extra-info/:skin',
 	//"/serverdata/:skin",
 	//"/data-provider/:skin",
 	//"/serverfilter/:skin",
-];
+]
 
-const skins = ["material", "willow", "willow-dark"];
-const links = [];
+const skins = ['material', 'willow', 'willow-dark']
+const links = []
 
 cases.forEach(w => {
 	skins.forEach(s => {
-		links.push(w.replace(":skin", s));
-	});
-});
+		links.push(w.replace(':skin', s))
+	})
+})
 
-context("Basic functionality", () => {
-	it("widget", () => {
+context('Basic functionality', () => {
+	it('widget', () => {
 		links.forEach(w => {
-			cy.visit(`/index.html#${w}`);
-			cy.wait(500);
-			cy.shot(w, { area: ".content" });
-		});
-	});
-});
+			cy.visit(`/index.html#${w}`)
+			cy.wait(500)
+			cy.shot(w, { area: '.content' })
+		})
+	})
+})

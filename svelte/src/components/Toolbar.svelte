@@ -1,46 +1,47 @@
-<script>
-	import { getContext } from "svelte";
-	import { Segmented, TwoState } from "@svar-ui/svelte-core";
-	import { setID } from "@svar-ui/lib-dom";
-	import Search from "./ui/Search.svelte";
-	import Icon from "./ui/Icon.svelte";
+<script lang="ts">
+	import { getContext } from 'svelte'
+	import { Segmented, TwoState } from '@svar-ui/svelte-core'
+	import { setID } from '@svar-ui/lib-dom'
+	import Search from './ui/Search.svelte'
+	import Icon from './ui/Icon.svelte'
+	import { IApi, TMode } from '@svar-ui/filemanager-store'
 
-	let { narrowMode = false, onshowtree } = $props();
+	let {
+		narrowMode = false,
+		onshowtree,
+	}: { narrowMode?: boolean; onshowtree?: () => void } = $props()
 
-	const api = getContext("filemanager-store");
+	const api: IApi = getContext('filemanager-store')
 
-	const { mode, preview: info, search: searchValue } = api.getReactiveState();
+	const { mode, preview: info, search: searchValue } = api.getReactiveState()
 
-	const _ = getContext("wx-i18n").getGroup("filemanager");
+	const _ = (getContext('wx-i18n') as any).getGroup('filemanager')
 
 	const options = [
-		{ icon: "wxi-view-sequential", id: "table" },
-		{ icon: "wxi-view-grid", id: "cards" },
-		{ icon: "wxi-view-column", id: "panels" },
-	];
+		{ icon: 'wxi-view-sequential', id: 'table' },
+		{ icon: 'wxi-view-grid', id: 'cards' },
+		{ icon: 'wxi-view-column', id: 'panels' },
+	]
 
-	function changeMode({ value }) {
-		api.exec("set-mode", { mode: value });
+	function changeMode({ value }: { value: TMode }) {
+		api.exec('set-mode', { mode: value })
 	}
-	function toggleInfo(e) {
-		e.preventDefault();
-		api.exec("show-preview", { mode: !$info });
+	function toggleInfo(e: Event) {
+		e.preventDefault()
+		api.exec('show-preview', { mode: !$info })
 	}
-	function search(e) {
-		api.exec("filter-files", { text: e.value });
+	function search(e: { value: string }) {
+		api.exec('filter-files', { text: e.value })
 	}
 </script>
 
 <div class="wx-toolbar">
 	<div class="wx-left {narrowMode ? 'wx-left-narrow' : ''}">
 		{#if !narrowMode}
-			<div class="wx-name">{_("Files")}</div>
-		{:else if !($mode == "panels" || $mode == "search")}
-			<div class="wx-sidebar-icon" data-id={setID("toggle-tree")}>
-				<Icon
-					onclick={() => onshowtree && onshowtree()}
-					name="subtask"
-				/>
+			<div class="wx-name">{_('Files')}</div>
+		{:else if !($mode == 'panels' || $mode == 'search')}
+			<div class="wx-sidebar-icon" data-id={setID('toggle-tree')}>
+				<Icon onclick={() => onshowtree && onshowtree()} name={'subtask'} />
 			</div>
 		{/if}
 		<Search onsearch={search} value={$searchValue} />
@@ -96,7 +97,7 @@
 		margin-right: 20px;
 	}
 
-	.wx-preview-icon {
+	/* .wx-preview-icon {
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -135,5 +136,5 @@
 		--wx-button-icon-size: 22px;
 		--wx-segmented-border-radius: 6px;
 		--wx-segmented-border: none;
-	}
+	} */
 </style>

@@ -1,171 +1,171 @@
 <script>
-	import { getContext } from "svelte";
-	import { formatSize } from "@svar-ui/filemanager-store";
-	import { delegateClick, dateToString, setID } from "@svar-ui/lib-dom";
-	import { Grid } from "@svar-ui/svelte-grid";
+	import { getContext } from 'svelte'
+	import { formatSize } from '@svar-ui/filemanager-store'
+	import { delegateClick, dateToString, setID } from '@svar-ui/lib-dom'
+	import { Grid } from '@svar-ui/svelte-grid'
 
-	import Breadcrumbs from "../Breadcrumbs.svelte";
-	import NameCell from "./NameCell.svelte";
-	import UploadDropArea from "../UploadDropArea.svelte";
+	import Breadcrumbs from '../Breadcrumbs.svelte'
+	import NameCell from './NameCell.svelte'
+	import UploadDropArea from '../UploadDropArea.svelte'
 
-	let { panel, active = false, onclick, oncontextmenu } = $props();
+	let { panel, active = false, onclick, oncontextmenu } = $props()
 
-	const api = getContext("filemanager-store");
+	const api = getContext('filemanager-store')
 
-	const locale = getContext("wx-i18n");
-	const _ = locale.getGroup("filemanager");
-	const format = dateToString("%d %M %Y", locale.getRaw().calendar);
+	const locale = getContext('wx-i18n')
+	const _ = locale.getGroup('filemanager')
+	const format = dateToString('%d %M %Y', locale.getRaw().calendar)
 
-	let { panels } = api.getReactiveState();
+	let { panels } = api.getReactiveState()
 
-	const selection = $derived($panels[panel].selected);
-	const path = $derived($panels[panel].path);
-	const crumbs = $derived($panels[panel]._crumbs);
-	const sorts = $derived($panels[panel]._sorts);
-	const selectNavigation = $derived($panels[panel]._selectNavigation);
-	const files = $derived($panels[panel]._files);
+	const selection = $derived($panels[panel].selected)
+	const path = $derived($panels[panel].path)
+	const crumbs = $derived($panels[panel]._crumbs)
+	const sorts = $derived($panels[panel]._sorts)
+	const selectNavigation = $derived($panels[panel]._selectNavigation)
+	const files = $derived($panels[panel]._files)
 
 	const columns = [
 		{
-			id: "name",
-			header: _("Name"),
+			id: 'name',
+			header: _('Name'),
 			flexgrow: 3,
 			sort: true,
 			resize: true,
 			cell: NameCell,
 		},
 		{
-			id: "size",
-			header: _("Size"),
+			id: 'size',
+			header: _('Size'),
 			width: 100,
 			sort: true,
 			resize: true,
-			template: v => (typeof v === "number" ? formatSize(v) : ""),
+			template: v => (typeof v === 'number' ? formatSize(v) : ''),
 		},
 		{
-			id: "date",
-			header: _("Date"),
+			id: 'date',
+			header: _('Date'),
 			width: 120,
 			sort: true,
 			resize: true,
-			template: v => (v ? format(v) : ""),
+			template: v => (v ? format(v) : ''),
 		},
-	];
+	]
 
-	let sortClick = null;
-	let resizeClick = null;
+	let sortClick = null
+	let resizeClick = null
 
 	const tableSelection = $derived(
-		selectNavigation ? ["/wx-filemanager-parent-link"] : [...selection]
-	);
+		selectNavigation ? ['/wx-filemanager-parent-link'] : [...selection]
+	)
 
 	function click(id, e) {
 		//[FIXME] grip is wx-table classname which may change
-		if (e && e.target.className.indexOf("wx-grip") !== -1) return;
+		if (e && e.target.className.indexOf('wx-grip') !== -1) return
 
-		const ctrl = e && (e.ctrlKey || e.metaKey);
-		const shift = e && e.shiftKey;
+		const ctrl = e && (e.ctrlKey || e.metaKey)
+		const shift = e && e.shiftKey
 
-		if (id === "/wx-filemanager-parent-link") {
-			if (selection.length && (ctrl || shift)) return;
-			api.exec("select-file", {
-				type: "navigation",
-			});
-			return;
+		if (id === '/wx-filemanager-parent-link') {
+			if (selection.length && (ctrl || shift)) return
+			api.exec('select-file', {
+				type: 'navigation',
+			})
+			return
 		}
 
-		const isFile = id !== "body";
-		let newSelection = !isFile && e ? null : id;
+		const isFile = id !== 'body'
+		let newSelection = !isFile && e ? null : id
 
 		if (!sortClick && !resizeClick) {
-			api.exec("select-file", {
+			api.exec('select-file', {
 				id: newSelection,
 				toggle: ctrl,
 				range: shift,
 				panel: panel,
-			});
-		} else sortClick = resizeClick = null;
+			})
+		} else sortClick = resizeClick = null
 	}
 
 	function backToParent() {
 		if (crumbs.length > 1) {
-			api.exec("set-path", {
+			api.exec('set-path', {
 				id: crumbs[crumbs.length - 2].id,
 				panel: panel,
 				selected: [crumbs[crumbs.length - 1].id],
-			});
+			})
 		}
 	}
 
 	function dblclick(id) {
-		if (id === "/wx-filemanager-parent-link") {
-			return backToParent();
+		if (id === '/wx-filemanager-parent-link') {
+			return backToParent()
 		}
-		const item = files.find(a => a.id === id);
+		const item = files.find(a => a.id === id)
 
 		if (item) {
-			if (item.type == "folder") {
-				api.exec("set-path", {
+			if (item.type == 'folder') {
+				api.exec('set-path', {
 					id: item.id,
 					panel: panel,
-				});
+				})
 			} else {
-				api.exec("open-file", {
+				api.exec('open-file', {
 					id: item.id,
-				});
+				})
 			}
 		}
 	}
 
 	function handleSort(e) {
-		const col = e.key;
-		const prevSort = sorts[path];
-		let order = !prevSort ? "desc" : "asc";
+		const col = e.key
+		const prevSort = sorts[path]
+		let order = !prevSort ? 'desc' : 'asc'
 
 		if (prevSort && prevSort.key === col) {
-			order = prevSort.order === "asc" ? "desc" : "asc";
+			order = prevSort.order === 'asc' ? 'desc' : 'asc'
 		}
 
-		api.exec("sort-files", {
+		api.exec('sort-files', {
 			key: col,
 			order,
 			panel,
 			path,
-		});
+		})
 	}
 
 	function initTable(api) {
-		api.intercept("sort-rows", e => {
-			sortClick = true;
-			handleSort(e);
-			return false;
-		});
+		api.intercept('sort-rows', e => {
+			sortClick = true
+			handleSort(e)
+			return false
+		})
 
-		api.intercept("select-row", () => false);
+		api.intercept('select-row', () => false)
 
-		api.on("resize-column", () => (resizeClick = true));
+		api.on('resize-column', () => (resizeClick = true))
 
-		api.intercept("hotkey", () => false);
+		api.intercept('hotkey', () => false)
 	}
 
 	let renderedFiles = $derived(
-		path !== "/"
+		path !== '/'
 			? [
 					{
-						id: "/wx-filemanager-parent-link",
-						name: _("Back to parent folder"),
+						id: '/wx-filemanager-parent-link',
+						name: _('Back to parent folder'),
 					},
 					...files,
 				]
 			: files
-	);
+	)
 
 	let sortMarks = $derived.by(() => {
 		if (renderedFiles && sorts[path]) {
-			const { key, order } = sorts[path];
-			return { [key]: { order } };
+			const { key, order } = sorts[path]
+			return { [key]: { order } }
 		}
-	});
+	})
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -173,7 +173,7 @@
 <div {onclick} {oncontextmenu} class="wx-wrapper">
 	<Breadcrumbs {panel} />
 	<div
-		data-id={setID("body")}
+		data-id={setID('body')}
 		class="wx-list"
 		class:wx-active={active}
 		use:delegateClick={{ click, dblclick }}
@@ -184,7 +184,7 @@
 				data={renderedFiles}
 				{columns}
 				selectedRows={tableSelection}
-				columnStyle={() => "wx-each-cell"}
+				columnStyle={() => 'wx-each-cell'}
 				sizes={{ rowHeight: 42, headerHeight: 42 }}
 				{sortMarks}
 			/>
@@ -214,8 +214,7 @@
 	.wx-list > :global(.wx-upload-area .wx-body .wx-each-cell) {
 		border-right: none;
 	}
-	.wx-list
-		> :global(.wx-upload-area .wx-header .wx-cell:first-child .wx-text) {
+	.wx-list > :global(.wx-upload-area .wx-header .wx-cell:first-child .wx-text) {
 		padding: 0 6px;
 	}
 	.wx-list > :global(.wx-upload-area .wx-table) {

@@ -1,9 +1,9 @@
 <script>
-	import { Filemanager } from "../../src";
-	import { getData } from "../data";
-	import { Willow, Locale } from "@svar-ui/svelte-core";
+	import { Filemanager } from '../../src'
+	import { getData } from '../data'
+	import { Willow, Locale } from '@svar-ui/svelte-core'
 
-	const data = getData();
+	const data = getData()
 </script>
 
 <Willow>

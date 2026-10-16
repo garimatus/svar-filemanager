@@ -1,9 +1,9 @@
 <script>
-	import Router, { push } from "svelte-spa-router";
-	import { wrap } from "svelte-spa-router/wrap";
+	import Router, { push } from 'svelte-spa-router'
+	import { wrap } from 'svelte-spa-router/wrap'
 
-	import { links } from "../demos/routes.js";
-	import { links as localLinks } from "./routes.js";
+	import { links } from '../demos/routes.js'
+	import { links as localLinks } from './routes.js'
 
 	import {
 		Material,
@@ -12,37 +12,37 @@
 		Globals,
 		Locale,
 		popupContainer,
-	} from "@svar-ui/svelte-core";
+	} from '@svar-ui/svelte-core'
 
-	const defRoute = links[0][0].replace(/\/:skin$/, "/willow");
+	const defRoute = links[0][0].replace(/\/:skin$/, '/willow')
 	const routes = {
-		"/": wrap({
+		'/': wrap({
 			component: {},
 			conditions: () => {
-				push(defRoute);
-				return false;
+				push(defRoute)
+				return false
 			},
 		}),
-	};
-
-	let skin = $state("willow");
-	function onRouteChange(path) {
-		const parts = path.split("/");
-		skin = parts[2];
 	}
 
-	const allLinks = [...localLinks, ...links];
+	let skin = $state('willow')
+	function onRouteChange(path) {
+		const parts = path.split('/')
+		skin = parts[2]
+	}
+
+	const allLinks = [...localLinks, ...links]
 	allLinks.forEach(a => {
-		const [path, , component] = a;
+		const [path, , component] = a
 		routes[path] = wrap({
 			component,
 			userData: a,
 			conditions: x => {
-				onRouteChange(x.location);
-				return true;
+				onRouteChange(x.location)
+				return true
 			},
-		});
-	});
+		})
+	})
 </script>
 
 <Willow />

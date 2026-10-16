@@ -1,10 +1,10 @@
 <script>
-	import { link, location } from "svelte-spa-router";
+	import { link, location } from 'svelte-spa-router'
 
-	let { data, skin, onclick: click } = $props();
+	let { data, skin, onclick: click } = $props()
 
-	const fullPath = $derived(data[0].replace(":skin", skin));
-	const isActive = $derived($location.startsWith(fullPath));
+	const fullPath = $derived(data[0].replace(':skin', skin))
+	const isActive = $derived($location.startsWith(fullPath))
 </script>
 
 <a

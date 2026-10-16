@@ -1,22 +1,22 @@
 <script>
-	import { getContext } from "svelte";
+	import { getContext } from 'svelte'
 
-	let { value = "", onsearch } = $props();
+	let { value = '', onsearch } = $props()
 
-	const _ = getContext("wx-i18n").getGroup("filemanager");
+	const _ = getContext('wx-i18n').getGroup('filemanager')
 
-	let node = null;
-	let icon = $derived(value !== "" ? "wxi-close" : "wxi-search");
+	let node = null
+	let icon = $derived(value !== '' ? 'wxi-close' : 'wxi-search')
 
 	function oninput(e) {
-		value = e.target.value;
-		onsearch && onsearch({ value });
+		value = e.target.value
+		onsearch && onsearch({ value })
 	}
 
 	function clear() {
-		value = "";
-		node.focus();
-		onsearch && onsearch({ value });
+		value = ''
+		node.focus()
+		onsearch && onsearch({ value })
 	}
 </script>
 
@@ -30,7 +30,7 @@
 		bind:this={node}
 		{value}
 		{oninput}
-		placeholder={_("Search")}
+		placeholder={_('Search')}
 	/>
 </div>
 

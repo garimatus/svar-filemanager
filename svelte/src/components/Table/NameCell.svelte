@@ -1,21 +1,25 @@
 <script>
-	import { getContext } from "svelte";
+	import { getContext } from 'svelte'
 
-	let { row } = $props();
+	let { row } = $props()
 
-	const _ = getContext("wx-i18n").getGroup("filemanager");
-	const templates = getContext("filemanager-store").templates;
+	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const templates = getContext('filemanager-store').templates
 
-	const icon = templates.icon(row, "small");
+	const Icon = $derived(templates.icon(row, 'small'))
 </script>
 
 <div class="wx-name-cell">
-	{#if row.id === "/wx-filemanager-parent-link"}
+	{#if row.id === '/wx-filemanager-parent-link'}
 		<i class="wxi-arrow-left"></i>
-		<span class="wx-name"> {_("Back to parent folder")}</span>
+		<span class="wx-name"> {_('Back to parent folder')}</span>
 	{:else}
-		{#if icon}
-			<img class="wx-icon" alt="" src={icon} height="24px" width="24px" />
+		<!-- {#if icon}
+			<img class="wx-icon" alt="" src={icon} height="24px" width="24px" /> -->
+		{#if Icon}
+			<span class="wx-icon">
+				<Icon size={24} />
+			</span>
 		{:else}<i class="wxi-{row.type}"></i>{/if}
 		<span class="wx-name"> {row.name} </span>
 	{/if}
@@ -36,11 +40,12 @@
 		margin-right: 10px;
 		display: flex;
 		align-items: center;
+		color: var(--wx-color-primary);
 	}
 
 	i {
 		font-size: 24px;
-		color: var(--wx-color-primary);
+		/* color: var(--wx-color-primary); */
 	}
 	.wx-name {
 		white-space: nowrap;

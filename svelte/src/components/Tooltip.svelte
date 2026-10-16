@@ -1,39 +1,39 @@
 <script>
-	import { Tooltip } from "@svar-ui/svelte-core";
-	import { getID } from "@svar-ui/lib-dom";
+	import { Tooltip } from '@svar-ui/svelte-core'
+	import { getID } from '@svar-ui/lib-dom'
 
 	let {
 		api,
-		at = "point",
+		at = 'point',
 		content: Content,
 		overflow = false,
 		resolver = defaultResolver,
 		...restProps
-	} = $props();
+	} = $props()
 
 	function defaultResolver(element) {
-		if (!api) return null;
+		if (!api) return null
 
-		if (element.classList.contains("wx-item")) {
-			const id = getID(element);
-			if (!id) return null;
-			const file = api.getFile(id);
-			if (!file) return null;
+		if (element.classList.contains('wx-item')) {
+			const id = getID(element)
+			if (!id) return null
+			const file = api.getFile(id)
+			if (!file) return null
 			if (overflow) {
-				const nameEl = element.querySelector(".wx-name");
-				const startEl = nameEl?.firstElementChild;
+				const nameEl = element.querySelector('.wx-name')
+				const startEl = nameEl?.firstElementChild
 				if (!startEl || startEl.scrollWidth <= startEl.clientWidth) {
-					return null;
+					return null
 				}
 			}
 			if (Content) {
-				return { api, data: { file } };
+				return { api, data: { file } }
 			} else {
-				return file.name;
+				return file.name
 			}
 		}
 
-		return null;
+		return null
 	}
 </script>
 

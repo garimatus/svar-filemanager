@@ -1,26 +1,26 @@
 <script>
-	import { Locale, Segmented } from "@svar-ui/svelte-core";
-	import { cn } from "@svar-ui/filemanager-locales";
-	import { cn as cnCore } from "@svar-ui/core-locales";
+	import { Locale, Segmented } from '@svar-ui/svelte-core'
+	import { cn } from '@svar-ui/filemanager-locales'
+	import { cn as cnCore } from '@svar-ui/core-locales'
 
-	import { getData, getDrive } from "../data";
-	import { Filemanager } from "../../src/";
+	import { getData, getDrive } from '../data'
+	import { Filemanager } from '../../src/'
 
-	let lang = $state("en");
+	let lang = $state('en')
 	const options = [
-		{ id: "en", label: "EN" },
-		{ id: "cn", label: "CN" },
-	];
+		{ id: 'en', label: 'EN' },
+		{ id: 'cn', label: 'CN' },
+	]
 </script>
 
 <div class="demo">
 	<div class="bar">
 		<Segmented {options} bind:value={lang} />
 	</div>
-	{#if lang === "en"}
+	{#if lang === 'en'}
 		<Filemanager data={getData()} drive={getDrive()} />
 	{/if}
-	{#if lang === "cn"}
+	{#if lang === 'cn'}
 		<Locale words={{ ...cn, ...cnCore }}>
 			<Filemanager data={getData()} drive={getDrive()} />
 		</Locale>

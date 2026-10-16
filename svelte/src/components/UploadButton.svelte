@@ -1,14 +1,14 @@
 <script>
-	import { getContext } from "svelte";
-	import { apiKey } from "@svar-ui/svelte-uploader";
+	import { getContext } from 'svelte'
+	import { apiKey } from '@svar-ui/svelte-uploader'
 
-	let { option } = $props();
+	let { option } = $props()
 
-	const _ = getContext("wx-i18n").getGroup("filemanager");
-	const uploaderApi = getContext(apiKey);
+	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const uploaderApi = getContext(apiKey)
 
 	function openFileChooserDialog() {
-		uploaderApi.open({});
+		uploaderApi.open({})
 	}
 </script>
 

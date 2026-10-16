@@ -1,48 +1,49 @@
 <script>
-	import { getContext } from "svelte";
-	import { setID } from "@svar-ui/lib-dom";
+	import { getContext } from 'svelte'
+	import { setID } from '@svar-ui/lib-dom'
 
-	let { item } = $props();
+	let { item } = $props()
 
-	const api = getContext("filemanager-store");
-	const _ = getContext("wx-i18n").getGroup("filemanager");
-	const templates = getContext("filemanager-store").templates;
+	const api = getContext('filemanager-store')
+	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const templates = getContext('filemanager-store').templates
 
-	let { panels, activePanel, mode } = api.getReactiveState();
+	let { panels, activePanel, mode } = api.getReactiveState()
 
-	const selection = $derived($panels[$activePanel].selected);
+	const selection = $derived($panels[$activePanel].selected)
 
-	let preview = $derived(templates.preview(item, 214, 163));
-	let icon = $derived(templates.icon(item, "big"));
-	let [nameStart, nameTail] = $derived(splitFileName(item.name));
+	let preview = $derived(templates.preview(item, 214, 163))
+	// let icon = $derived(templates.icon(item, 'big'))
+	let Icon = $derived(templates.icon(item, 'big'))
+	let [nameStart, nameTail] = $derived(splitFileName(item.name))
 
 	function splitFileName(name) {
-		const MAX_TAIL_LENGTH = 10;
-		const NO_EXT_TAIL_LENGTH = 5;
+		const MAX_TAIL_LENGTH = 10
+		const NO_EXT_TAIL_LENGTH = 5
 
-		const lastDotIndex = name.lastIndexOf(".");
-		const hasExtension = lastDotIndex > 0 && lastDotIndex < name.length - 1;
+		const lastDotIndex = name.lastIndexOf('.')
+		const hasExtension = lastDotIndex > 0 && lastDotIndex < name.length - 1
 		const tailLength = hasExtension
 			? Math.min(MAX_TAIL_LENGTH, name.length - lastDotIndex)
-			: Math.min(NO_EXT_TAIL_LENGTH, name.length);
+			: Math.min(NO_EXT_TAIL_LENGTH, name.length)
 
-		const nameStart = name.slice(0, -tailLength);
-		const nameTail = name.slice(-tailLength);
+		const nameStart = name.slice(0, -tailLength)
+		const nameTail = name.slice(-tailLength)
 
-		return [nameStart, nameTail];
+		return [nameStart, nameTail]
 	}
 </script>
 
-{#if item.id === "/wx-filemanager-parent-link"}
-	{#if $mode !== "search"}
+{#if item.id === '/wx-filemanager-parent-link'}
+	{#if $mode !== 'search'}
 		<div class="wx-back-item">
 			<div
 				class="wx-back"
-				data-id={setID("/wx-filemanager-parent-link")}
+				data-id={setID('/wx-filemanager-parent-link')}
 				class:wx-selected={item.navigation}
 			>
 				<i class="wxi-arrow-left"></i>
-				<span> {_("Back to parent folder")}</span>
+				<span> {_('Back to parent folder')}</span>
 			</div>
 		</div>
 	{/if}
@@ -56,21 +57,25 @@
 			<div class="wx-preview wx-file-preview">
 				<img
 					class="wx-card-preview"
-					alt={_("A miniature file preview")}
+					alt={_('A miniature file preview')}
 					src={preview}
 				/>
 			</div>
-		{:else if icon}
+			<!-- {:else if icon}
 			<div class="wx-preview wx-file-icon">
 				<img class="wx-card-preview" alt="" src={icon} />
+			</div> -->
+		{:else if Icon}
+			<div class="wx-preview wx-file-icon">
+				<Icon size={100} />
 			</div>
 		{:else}
 			<div class="wx-preview"><i class="wxi-{item.type}"></i></div>
 		{/if}
-		{#if item.type === "folder"}
+		{#if item.type === 'folder'}
 			<div class="wx-info">
 				<div class="wx-folder-name">
-					<span class="wx-type">{_("Folder")}</span>
+					<span class="wx-type">{_('Folder')}</span>
 					<span class="wx-name">
 						<span>{nameStart}</span><span>{nameTail}</span>
 					</span>
@@ -128,9 +133,8 @@
 		width: 100%;
 	}
 
-	.wx-file-icon .wx-card-preview {
-		height: 100px;
-		width: 100px;
+	.wx-file-icon {
+		color: var(--wx-color-primary);
 	}
 
 	.wx-selected {

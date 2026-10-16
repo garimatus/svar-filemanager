@@ -1,109 +1,104 @@
 <script>
-	import { clickOutside, locateID, setID } from "@svar-ui/lib-dom";
-	import { ActionMenu, ContextMenu } from "@svar-ui/svelte-menu";
-	import { Uploader } from "@svar-ui/svelte-uploader";
-	import { hotkeys } from "@svar-ui/filemanager-store";
+	import { clickOutside, locateID, setID } from '@svar-ui/lib-dom'
+	import { ActionMenu, ContextMenu } from '@svar-ui/svelte-menu'
+	import { Uploader } from '@svar-ui/svelte-uploader'
+	import { hotkeys } from '@svar-ui/filemanager-store'
 
-	import { getContext, tick } from "svelte";
+	import { getContext, tick } from 'svelte'
 
-	import SearchView from "./SearchView.svelte";
-	import Info from "./Info.svelte";
-	import Panels from "./Panels.svelte";
-	import Sidebar from "./Sidebar.svelte";
-	import Toolbar from "./Toolbar.svelte";
-	import TableView from "./Table/View.svelte";
-	import CardsView from "./Cards/View.svelte";
+	import SearchView from './SearchView.svelte'
+	import Info from './Info.svelte'
+	import Panels from './Panels.svelte'
+	import Sidebar from './Sidebar.svelte'
+	import Toolbar from './Toolbar.svelte'
+	import TableView from './Table/View.svelte'
+	import CardsView from './Cards/View.svelte'
 
-	let { readonly = false, menuOptions, extraInfo } = $props();
+	let { readonly = false, menuOptions, extraInfo } = $props()
 
-	let sidebarWidth = $state();
+	let sidebarWidth = $state()
 
-	let narrowMode = $state();
-	let showSidebar = $state(false);
+	let narrowMode = $state()
+	let showSidebar = $state(false)
 
 	function resize(node) {
 		const ro = new ResizeObserver(entries => {
-			narrowMode = entries[0].borderBoxSize[0].inlineSize < 768;
-		});
-		ro.observe(node);
+			narrowMode = entries[0].borderBoxSize[0].inlineSize < 768
+		})
+		ro.observe(node)
 	}
 
 	function toggleSidebar() {
-		showSidebar = !showSidebar;
+		showSidebar = !showSidebar
 	}
 
 	function hideSidebar(ev) {
-		if (narrowMode && locateID(ev) !== "toggle-tree") {
-			showSidebar = false;
+		if (narrowMode && locateID(ev) !== 'toggle-tree') {
+			showSidebar = false
 		}
 	}
 
-	const api = getContext("filemanager-store");
-	const { showPrompt, showConfirm } = getContext("filemanager-modals");
-	const _ = getContext("wx-i18n").getGroup("filemanager");
+	const api = getContext('filemanager-store')
+	const { showPrompt, showConfirm } = getContext('filemanager-modals')
+	const _ = getContext('wx-i18n').getGroup('filemanager')
 
 	const {
 		mode: rMode,
 		preview: rPreview,
 		activePanel: rActivePanel,
 		panels: rPanels,
-	} = api.getReactiveState();
+	} = api.getReactiveState()
 
-	const selected = $derived($rPanels[$rActivePanel].selected);
-	const path = $derived($rPanels[$rActivePanel].path);
-	let contextMenuOptions = $state([]);
+	const selected = $derived($rPanels[$rActivePanel].selected)
+	const path = $derived($rPanels[$rActivePanel].path)
+	let contextMenuOptions = $state([])
 
 	const previewOption = {
-		icon: "wxi-eye",
-		text: "Preview",
-		id: "preview",
-	};
+		icon: 'wxi-eye',
+		text: 'Preview',
+		id: 'preview',
+	}
 
 	function getReadonlyMenu(type) {
-		let options = narrowMode ? [previewOption] : [];
-		if (type === "file")
-			options = [
-				...options,
-				...menuOptions().filter(o => o.id === "download"),
-			];
-		return options;
+		let options = narrowMode ? [previewOption] : []
+		if (type === 'file')
+			options = [...options, ...menuOptions().filter(o => o.id === 'download')]
+		return options
 	}
 
 	function resolveContext(id, e) {
-		const item = id ? api.getFile(id) : null;
-		const inTree = e.target.closest(".tree-item.folder");
+		const item = id ? api.getFile(id) : null
+		const inTree = e.target.closest('.tree-item.folder')
 
-		let options;
+		let options
 
 		if (readonly) {
-			options = getReadonlyMenu(item?.type);
+			options = getReadonlyMenu(item?.type)
 		} else {
 			switch (id) {
-				case "body":
-					options = menuOptions(id);
-					break;
+				case 'body':
+					options = menuOptions(id)
+					break
 				default:
 					if (item) {
 						if (!inTree && selected.length > 1) {
 							options = narrowMode
-								? [previewOption, ...menuOptions("multiselect")]
-								: menuOptions("multiselect");
-						} else if (id === "/") {
-							options = menuOptions("folder", item).filter(
-								o => o.id === "paste"
-							);
+								? [previewOption, ...menuOptions('multiselect')]
+								: menuOptions('multiselect')
+						} else if (id === '/') {
+							options = menuOptions('folder', item).filter(
+								o => o.id === 'paste'
+							)
 						} else {
-							const mOptions = menuOptions(item.type, item);
+							const mOptions = menuOptions(item.type, item)
 							if (mOptions) {
-								options = narrowMode
-									? [previewOption, ...mOptions]
-									: mOptions;
+								options = narrowMode ? [previewOption, ...mOptions] : mOptions
 							}
 						}
 					}
 			}
-			if ($rMode === "search") {
-				options = options?.filter(o => o.id !== "paste");
+			if ($rMode === 'search') {
+				options = options?.filter(o => o.id !== 'paste')
 			}
 		}
 
@@ -112,75 +107,71 @@
 			(!selected.length || !selected.some(i => i === item.id)) &&
 			!inTree
 		) {
-			api.exec("select-file", { id: item.id });
+			api.exec('select-file', { id: item.id })
 		}
 
 		if (options?.length) {
 			options.forEach(o => {
-				if (inTree) o.hotkey = "";
-				if (o.text) o.text = _(o.text);
-				if (o.hotkey) o.subtext = o.hotkey;
-			});
-			contextMenuOptions = options;
-			return item || {};
+				if (inTree) o.hotkey = ''
+				if (o.text) o.text = _(o.text)
+				if (o.hotkey) o.subtext = o.hotkey
+			})
+			contextMenuOptions = options
+			return item || {}
 		}
 	}
 
-	let copy = null;
+	let copy = null
 	function handleMenu(e) {
-		const { action, context } = e;
+		const { action, context } = e
 		if (action) {
-			performAction(action.id, context, !action.hotkey);
+			performAction(action.id, context, !action.hotkey)
 		}
 	}
 
 	function performAction(action, context, inTree) {
-		const ids = inTree ? [context.id] : selected;
+		const ids = inTree ? [context.id] : selected
 		switch (action) {
-			case "download":
-				api.exec("download-file", { id: context.id });
-				break;
-			case "copy":
-			case "move":
+			case 'download':
+				api.exec('download-file', { id: context.id })
+				break
+			case 'copy':
+			case 'move':
 				copy = {
 					action,
 					ids: ids,
-				};
-				break;
-			case "paste":
-				if (copy) {
-					api.exec(
-						copy.action === "copy" ? "copy-files" : "move-files",
-						{
-							ids: copy.ids,
-							target:
-								context?.type === "folder" ? context.id : path,
-						}
-					);
 				}
-				break;
-			case "rename":
-				showPrompt({ item: context });
-				break;
-			case "delete":
-				showConfirm({ selected: ids });
-				break;
-			case "preview":
-				api.exec("show-preview", { mode: !$rPreview });
-				break;
+				break
+			case 'paste':
+				if (copy) {
+					api.exec(copy.action === 'copy' ? 'copy-files' : 'move-files', {
+						ids: copy.ids,
+						target: context?.type === 'folder' ? context.id : path,
+					})
+				}
+				break
+			case 'rename':
+				showPrompt({ item: context })
+				break
+			case 'delete':
+				showConfirm({ selected: ids })
+				break
+			case 'preview':
+				api.exec('show-preview', { mode: !$rPreview })
+				break
 		}
 	}
 
 	function getPanel() {
-		return $rPanels[$rActivePanel];
+		return $rPanels[$rActivePanel]
 	}
 
 	async function handleUpload(f) {
 		//if active panel was changed before upload, wait until for it
-		await tick();
-		const { name, size } = f.file;
+		await tick()
+		const { name, size } = f.file
 
-		api.exec("create-file", {
+		api.exec('create-file', {
 			file: {
 				name,
 				size,
@@ -188,7 +179,7 @@
 				file: f.file,
 			},
 			parent: path,
-		});
+		})
 	}
 </script>
 
@@ -209,8 +200,8 @@
 	{:else}
 		<Toolbar {narrowMode} onshowtree={toggleSidebar} />
 		<ContextMenu
-			dataKey={"id"}
-			at={"point"}
+			dataKey={'id'}
+			at={'point'}
 			options={contextMenuOptions}
 			resolver={resolveContext}
 			onclick={handleMenu}
@@ -223,7 +214,7 @@
 			>
 				<Uploader apiOnly={true} uploadURL={handleUpload}>
 					<div class="wx-content-wrapper wx-flex">
-						{#if $rMode !== "panels" && $rMode !== "search"}
+						{#if $rMode !== 'panels' && $rMode !== 'search'}
 							<div
 								use:clickOutside={hideSidebar}
 								class="wx-sidebar"
@@ -238,12 +229,10 @@
 								style="width: calc(100% - {sidebarWidth}px - 10px)"
 							>
 								<div
-									class="wx-content-item{$rPreview
-										? ''
-										: '-fit'}"
-									data-id={setID("body")}
+									class="wx-content-item{$rPreview ? '' : '-fit'}"
+									data-id={setID('body')}
 								>
-									{#if $rMode === "table"}
+									{#if $rMode === 'table'}
 										<TableView panel={$rActivePanel} />
 									{:else}
 										<CardsView />
@@ -256,10 +245,8 @@
 								{/if}
 							</div>
 						{:else}
-							<div
-								class="wx-content-item{$rPreview ? '' : '-fit'}"
-							>
-								{#if $rMode === "panels"}
+							<div class="wx-content-item{$rPreview ? '' : '-fit'}">
+								{#if $rMode === 'panels'}
 									<Panels />
 								{:else}
 									<SearchView />
@@ -333,14 +320,14 @@
 		height: 100%;
 		padding-top: 10px;
 	}
-	.wx-filemanager > :global(div[data-menu-ignore="true"]) {
+	.wx-filemanager > :global(div[data-menu-ignore='true']) {
 		height: 100%;
 		width: 100%;
 	}
-	.wx-filemanager > :global(span[data-menu-ignore="true"]),
+	.wx-filemanager > :global(span[data-menu-ignore='true']),
 	.wx-filemanager
-		> :global(span[data-menu-ignore="true"])
-		> :global(span[data-menu-ignore="true"]) {
+		> :global(span[data-menu-ignore='true'])
+		> :global(span[data-menu-ignore='true']) {
 		min-height: 0;
 		height: 100%;
 		width: 100%;

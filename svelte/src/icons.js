@@ -1,5 +1,6 @@
 export let whitelist = {
-	"7z": true,
+	py: true,
+	'7z': true,
 	rar: true,
 	zip: true,
 	css: true,
@@ -37,4 +38,4 @@ export let whitelist = {
 	multiple: true,
 	search: true,
 	none: true,
-};
+}

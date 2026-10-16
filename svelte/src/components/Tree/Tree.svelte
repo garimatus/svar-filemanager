@@ -1,38 +1,38 @@
 <script>
-	import { getContext } from "svelte";
+	import { getContext } from 'svelte'
 
-	import { delegateClick } from "@svar-ui/lib-dom";
-	import Folder from "./Folder.svelte";
-	import { getSelectionOnNavigation } from "@svar-ui/filemanager-store";
+	import { delegateClick } from '@svar-ui/lib-dom'
+	import Folder from './Folder.svelte'
+	import { getSelectionOnNavigation } from '@svar-ui/filemanager-store'
 
-	const api = getContext("filemanager-store");
-	const { data, panels, activePanel } = api.getReactiveState();
+	const api = getContext('filemanager-store')
+	const { data, panels, activePanel } = api.getReactiveState()
 
-	const crumbs = $derived($panels[$activePanel]._crumbs);
+	const crumbs = $derived($panels[$activePanel]._crumbs)
 
 	function toggle(id) {
-		api.exec("open-tree-folder", {
+		api.exec('open-tree-folder', {
 			id,
 			mode: !$data.byId(id).open,
-		});
+		})
 	}
 
 	function click(id) {
-		const selectedId = getSelectionOnNavigation(id, crumbs);
-		api.exec("set-path", {
+		const selectedId = getSelectionOnNavigation(id, crumbs)
+		api.exec('set-path', {
 			id,
 			panel: $activePanel,
 			...(selectedId && { selected: [selectedId] }),
-		});
+		})
 	}
 
-	let folders = $state([]);
-	$effect(() => (folders = $data.byId(0).data));
+	let folders = $state([])
+	$effect(() => (folders = $data.byId(0).data))
 </script>
 
 <ul use:delegateClick={{ click, toggle }}>
 	{#each folders as folder (folder.id)}
-		{#if folder.type === "folder"}
+		{#if folder.type === 'folder'}
 			<Folder {folder} />
 		{/if}
 	{/each}

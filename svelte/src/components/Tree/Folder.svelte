@@ -1,21 +1,21 @@
 <script>
-	import { setID } from "@svar-ui/lib-dom";
-	import Folder from "./Folder.svelte";
-	import { getContext } from "svelte";
+	import { setID } from '@svar-ui/lib-dom'
+	import Folder from './Folder.svelte'
+	import { getContext } from 'svelte'
 
-	const api = getContext("filemanager-store");
-	const { panels, activePanel } = api.getReactiveState();
+	const api = getContext('filemanager-store')
+	const { panels, activePanel } = api.getReactiveState()
 
-	let path = $derived($panels[$activePanel].path);
+	let path = $derived($panels[$activePanel].path)
 
-	let { folderIcon = false, folder = {} } = $props();
+	let { folderIcon = false, folder = {} } = $props()
 
-	const _ = getContext("wx-i18n").getGroup("filemanager");
+	const _ = getContext('wx-i18n').getGroup('filemanager')
 
-	const hasFolders = $derived(!!folder.data?.find(i => i.type === "folder"));
-	const name = $derived(folder.id == "/" ? _(folder.name) : folder.name);
-	const padding = $derived(folder.$level > 1 ? (folder.$level - 1) * 20 : 0);
-	const open = $derived(folder.open);
+	const hasFolders = $derived(!!folder.data?.find(i => i.type === 'folder'))
+	const name = $derived(folder.id == '/' ? _(folder.name) : folder.name)
+	const padding = $derived(folder.$level > 1 ? (folder.$level - 1) * 20 : 0)
+	const open = $derived(folder.open)
 </script>
 
 <li
@@ -30,13 +30,13 @@
 			data-action="toggle"
 		></i>
 	{:else}<span class="wx-toggle-placeholder"></span>{/if}
-	<i class={folderIcon || "wxi-folder"}></i>
+	<i class={folderIcon || 'wxi-folder'}></i>
 	<span class="wx-name"> {name} </span>
 </li>
 
 {#if open && folder.data && folder.data.length && hasFolders}
 	{#each folder.data as folder (folder.id)}
-		{#if folder.type === "folder"}
+		{#if folder.type === 'folder'}
 			<Folder {folder} />
 		{/if}
 	{/each}

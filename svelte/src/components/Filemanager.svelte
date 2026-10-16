@@ -1,61 +1,67 @@
-<script>
-	import { setContext } from "svelte";
+<script lang="ts">
+	import { setContext } from 'svelte'
 
-	import Layout from "./Layout.svelte";
+	import Layout from './Layout.svelte'
 
-	import { Locale } from "@svar-ui/svelte-core";
-	import { en } from "@svar-ui/filemanager-locales";
+	import { Locale } from '@svar-ui/svelte-core'
+	import { en } from '@svar-ui/filemanager-locales'
 
 	// stores
-	import { EventBusRouter } from "@svar-ui/lib-state";
-	import { DataStore, getMenuOptions } from "@svar-ui/filemanager-store";
-	import Modals from "./Modals.svelte";
-	import { whitelist } from "../icons";
+	import { EventBusRouter } from '@svar-ui/lib-state'
+	import { DataStore, getMenuOptions } from '@svar-ui/filemanager-store'
+	import type { DataStore as DataStoreType } from '@svar-ui/filemanager-store'
+	// @ts-expect-error - no type declarations for .svelte component imports
+	import Modals from './Modals.svelte'
+	// import { whitelist } from '../icons'
+
+	import iconService from '../services/iconService'
+	type TActivePanel = 0 | 1
 
 	let {
 		data = [],
-		mode = "cards",
+		mode = 'cards' as 'cards' | 'table',
 		drive = null,
 		preview = false,
 		panels = [],
-		activePanel = 0,
-		readonly = false,
-		menuOptions = getMenuOptions,
-		extraInfo = null,
+		activePanel = 0 as TActivePanel,
+		readonly = false as boolean,
+		menuOptions = getMenuOptions as (mode: any) => any[],
+		extraInfo = null as any,
 		init = null,
-		icons = function (file, size) {
-			const { type, ext } = file;
+		// icons = function (file, size) {
+		// 	const { type, ext } = file
 
-			if (type === "folder") return false;
+		// 	if (type === 'folder') return false
 
-			let icon;
+		// 	let icon
 
-			if (type && type !== "file" && whitelist[type]) {
-				icon = type;
-			} else if (ext) {
-				icon = whitelist[ext] ? ext : "file";
-			} else icon = "unknown";
+		// 	if (type && type !== 'file' && whitelist[type]) {
+		// 		icon = type
+		// 	} else if (ext) {
+		// 		icon = whitelist[ext] ? ext : 'file'
+		// 	} else icon = 'unknown'
 
-			return `https://cdn.svar.dev/icons/filemanager/vivid/${size}/${icon}.svg`;
-		},
+		// 	return `https://cdn.svar.dev/icons/filemanager/vivid/${size}/${icon}.svg`
+		// },
+		icons = iconService,
 		previews = null,
 		...restProps
-	} = $props();
+	} = $props()
 
 	// init stores
-	const dataStore = new DataStore();
+	const dataStore: DataStoreType = new DataStore()
 
 	// define event route
-	let firstInRoute = dataStore.in;
+	let firstInRoute = dataStore.in
 
-	const dash = /-/g;
-	let lastInRoute = new EventBusRouter((a, b) => {
-		const name = "on" + a.replace(dash, "");
+	const dash = /-/g
+	let lastInRoute: any = new EventBusRouter((a: string, b) => {
+		const name = 'on' + a.replace(dash, '')
 		if (restProps[name]) {
-			restProps[name](b);
+			restProps[name](b)
 		}
-	});
-	firstInRoute.setNext(lastInRoute);
+	})
+	firstInRoute.setNext(lastInRoute)
 
 	// public API
 	export const // state
@@ -64,13 +70,13 @@
 		getStores = () => ({ data: dataStore }),
 		// events
 		exec = firstInRoute.exec,
-		setNext = ev => (lastInRoute = lastInRoute.setNext(ev)),
+		setNext = (ev: any) => (lastInRoute = lastInRoute.setNext(ev)),
 		intercept = firstInRoute.intercept.bind(firstInRoute),
 		on = firstInRoute.on.bind(firstInRoute),
 		detach = firstInRoute.detach.bind(firstInRoute),
 		//specific
-		getFile = id => dataStore.getFile(id),
-		serialize = id => dataStore.serialize(id);
+		getFile = (id: string) => dataStore.getFile(id),
+		serialize = (id: string) => dataStore.serialize(id)
 
 	const api = {
 		getState,
@@ -83,21 +89,25 @@
 		detach,
 		getFile,
 		serialize,
-	};
+	}
 
-	const none = () => null;
+	const none = () => null
 	// common API available in components
-	setContext("filemanager-store", {
+	setContext('filemanager-store', {
 		getReactiveState: dataStore.getReactive.bind(dataStore),
 		exec: firstInRoute.exec.bind(firstInRoute),
 		templates: {
-			preview: previews || none,
-			icon: icons == "simple" ? none : icons,
+			get preview() {
+				return previews || none
+			},
+			get icon() {
+				return (icons as unknown) == 'simple' ? none : icons
+			},
 		},
 		getFile: dataStore.getFile.bind(dataStore),
-	});
+	})
 
-	let init_once = true;
+	let init_once = true
 	const reinitStore = () => {
 		dataStore.init({
 			data,
@@ -106,15 +116,15 @@
 			preview,
 			panels,
 			activePanel,
-		});
+		})
 
 		if (init_once && init) {
-			init(api);
-			init_once = false;
+			init(api)
+			init_once = false
 		}
-	};
-	reinitStore();
-	$effect(reinitStore);
+	}
+	reinitStore()
+	$effect(reinitStore)
 </script>
 
 <Locale words={en} optional={true}>

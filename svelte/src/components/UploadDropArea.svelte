@@ -1,29 +1,29 @@
 <script>
-	import { getContext } from "svelte";
-	import { apiKey } from "@svar-ui/svelte-uploader";
-	import { locateAttr } from "@svar-ui/lib-dom";
+	import { getContext } from 'svelte'
+	import { apiKey } from '@svar-ui/svelte-uploader'
+	import { locateAttr } from '@svar-ui/lib-dom'
 
-	let { children } = $props();
+	let { children } = $props()
 
-	const api = getContext("filemanager-store");
-	const activePanel = api.getReactiveState().activePanel;
+	const api = getContext('filemanager-store')
+	const activePanel = api.getReactiveState().activePanel
 
-	const uploaderApi = getContext(apiKey);
+	const uploaderApi = getContext(apiKey)
 
 	const apiSettings = {
 		selected: () => {
-			const panel = locateAttr(self, "data-panel");
+			const panel = locateAttr(self, 'data-panel')
 			if (panel && panel != $activePanel) {
-				api.exec("set-active-panel", {
+				api.exec('set-active-panel', {
 					panel: panel * 1,
-				});
+				})
 			}
 		},
-		dragEnter: () => self.classList.toggle("wx-active"),
-		dragLeave: () => self.classList.toggle("wx-active"),
-	};
+		dragEnter: () => self.classList.toggle('wx-active'),
+		dragLeave: () => self.classList.toggle('wx-active'),
+	}
 
-	let self = $state();
+	let self = $state()
 </script>
 
 <div

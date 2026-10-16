@@ -1,6 +1,6 @@
 <script>
-	import { Willow } from "@svar-ui/svelte-core";
-	let { fonts = true, children } = $props();
+	import { Willow } from '@svar-ui/svelte-core'
+	let { fonts = true, children } = $props()
 </script>
 
 {#if children}

@@ -1,68 +1,67 @@
-<script>
-	import { getContext, setContext } from "svelte";
-	import { Globals, Modal, Text } from "@svar-ui/svelte-core";
+<script lang="ts">
+	import { getContext, setContext } from 'svelte'
+	import { Globals, Modal, Text } from '@svar-ui/svelte-core'
 
-	let { children } = $props();
+	let { children } = $props()
 
-	const _ = getContext("wx-i18n").getGroup("filemanager");
-	const api = getContext("filemanager-store");
+	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const api = getContext('filemanager-store')
 
-	const { panels: rPanels, activePanel: rActivePanel } =
-		api.getReactiveState();
+	const { panels: rPanels, activePanel: rActivePanel } = api.getReactiveState()
 
-	const path = $derived($rPanels[$rActivePanel].path);
-	let prompt = $state(null);
-	let confirm = $state(null);
-	let value = $state("");
-	let initialName = $state("");
-	let error = $state(false);
+	const path = $derived($rPanels[$rActivePanel].path)
+	let prompt = $state(null)
+	let confirm = $state(null)
+	let value: string = $state('')
+	let initialName: string = $state('')
+	let error: boolean = $state(false)
 
-	function promptOk() {
-		const name = value.trim();
+	function promptOk(): void {
+		const name: string = value.trim()
 		if (!name) {
-			error = true;
-			return;
+			error = true
+			return
 		}
 
 		if (prompt.add) {
-			api.exec("create-file", {
+			api.exec('create-file', {
 				file: {
 					...prompt.item,
 					name,
 				},
 				parent: path,
-			});
+			})
 		} else {
 			if (initialName !== name)
-				api.exec("rename-file", { id: prompt.item.id, name });
+				api.exec('rename-file', { id: prompt.item.id, name })
 		}
 
-		closePrompt();
+		closePrompt()
 	}
 
 	function closePrompt() {
-		prompt = error = null;
-		initialName = value = "";
+		prompt = error = null
+		initialName = value = ''
 	}
 
 	function confirmOk() {
-		api.exec("delete-files", { ids: confirm.selected });
-		confirm = null;
+		api.exec('delete-files', { ids: confirm.selected })
+		confirm = null
 	}
 
-	setContext("filemanager-modals", {
+	setContext('filemanager-modals', {
 		showPrompt(config) {
 			initialName = value =
 				config.item.name ||
-				(config.item.type === "folder"
-					? _("New folder")
-					: `${_("New file")}.txt`);
-			prompt = { ...config };
+				(config.item.type === 'folder'
+					? _('New folder')
+					: `${_('New file')}.txt`)
+			prompt = { ...config }
 		},
 		showConfirm(config) {
-			confirm = { ...config };
+			confirm = { ...config }
 		},
-	});
+	})
 </script>
 
 <Globals>
@@ -82,7 +81,7 @@
 
 {#if confirm}
 	<Modal
-		title={_("Are you sure you want to delete these items:")}
+		title={_('Are you sure you want to delete these items:')}
 		onconfirm={confirmOk}
 		oncancel={() => (confirm = null)}
 	>

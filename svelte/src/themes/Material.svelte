@@ -1,6 +1,6 @@
 <script>
-	import { Material } from "@svar-ui/svelte-core";
-	let { fonts = true, children } = $props();
+	import { Material } from '@svar-ui/svelte-core'
+	let { fonts = true, children } = $props()
 </script>
 
 {#if children}

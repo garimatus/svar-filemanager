@@ -1,17 +1,17 @@
 <script>
-	import TableView from "./Table/View.svelte";
-	import { getContext } from "svelte";
-	import { setID } from "@svar-ui/lib-dom";
+	import TableView from './Table/View.svelte'
+	import { getContext } from 'svelte'
+	import { setID } from '@svar-ui/lib-dom'
 
-	const api = getContext("filemanager-store");
-	const activePanel = api.getReactiveState().activePanel;
+	const api = getContext('filemanager-store')
+	const activePanel = api.getReactiveState().activePanel
 
 	function toggleActive(panel) {
-		api.exec("set-active-panel", { panel });
+		api.exec('set-active-panel', { panel })
 	}
 </script>
 
-<div class="wx-panels" data-id={setID("body")}>
+<div class="wx-panels" data-id={setID('body')}>
 	<div class="wx-item" data-panel={0}>
 		<TableView
 			panel={0}

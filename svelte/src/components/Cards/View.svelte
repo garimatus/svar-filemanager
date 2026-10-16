@@ -1,13 +1,12 @@
 <script>
-	import { getContext } from "svelte";
+	import { getContext } from 'svelte'
 
-	import Breadcrumbs from "../Breadcrumbs.svelte";
-	import Panel from "./Panel.svelte";
-	import UploadDropArea from "../UploadDropArea.svelte";
+	import Breadcrumbs from '../Breadcrumbs.svelte'
+	import Panel from './Panel.svelte'
+	import UploadDropArea from '../UploadDropArea.svelte'
 
-	const api = getContext("filemanager-store");
-	const { activePanel } = api.getReactiveState();
-
+	const api = getContext('filemanager-store')
+	const { activePanel } = api.getReactiveState()
 </script>
 
 <div class="wx-wrapper">
@@ -39,5 +38,4 @@
 	.wx-wrapper > :global(.wx-upload-area.wx-active) {
 		border: 1px solid var(--wx-color-primary);
 	}
-
 </style>

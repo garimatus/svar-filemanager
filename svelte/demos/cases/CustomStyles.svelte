@@ -1,6 +1,6 @@
 <script>
-	import { getData, getDrive } from "../data";
-	import { Filemanager } from "../../src/";
+	import { getData, getDrive } from '../data'
+	import { Filemanager } from '../../src/'
 </script>
 
 <div class="filemanager">
