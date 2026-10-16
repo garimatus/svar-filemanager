@@ -1,0 +1,53 @@
+export default {
+	filemanager: {
+		'My files': 'Mis archivos',
+
+		'Add New': 'Agregar nuevo',
+		Ok: 'Aceptar',
+		Cancel: 'Cancelar',
+		'Delete files': 'Eliminar archivos',
+		Files: 'Archivos',
+		Folder: 'Carpeta',
+		'Back to parent folder': 'Volver a la carpeta principal',
+		Information: 'Información',
+		Found: 'Encontrado',
+
+		'Are you sure you want to delete these items:':
+			'¿Está seguro de que desea eliminar estos elementos?',
+		'Enter file name': 'Ingrese el nombre del archivo',
+		'Enter folder name': 'Ingrese el nombre de la carpeta',
+
+		Result: 'Resultado',
+		Search: 'Buscar',
+		'Search results in': 'Resultados de búsqueda en',
+		'Add new file': 'Agregar nuevo archivo',
+		'Add new folder': 'Agregar nueva carpeta',
+		'Upload file': 'Subir archivo',
+		Size: 'Tamaño',
+		Name: 'Nombre',
+		Type: 'Tipo',
+		Date: 'Fecha',
+		Rename: 'Renombrar',
+		Cut: 'Cortar',
+		Delete: 'Eliminar',
+		Copy: 'Copiar',
+		Paste: 'Pegar',
+		Download: 'Descargar',
+		Count: 'Cantidad',
+		folder: 'carpeta',
+		folders: 'carpetas',
+		file: 'archivo',
+		files: 'archivos',
+		'Multiple files': 'últiples archivos',
+		multiple: 'múltiple',
+		Preview: 'Vista previa',
+		of: 'de',
+		used: 'usado',
+		'Select file or folder to view details':
+			'Seleccione un archivo o carpeta para ver los detalles',
+		'Looks like nothing is here': 'Parece que no hay nada aquí',
+		'Unknown file': 'Archivo desconocido',
+
+		'A miniature file preview': 'Una vista previa en miniatura del archivo',
+	},
+}

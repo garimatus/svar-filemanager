@@ -56,6 +56,19 @@ export default [
 		},
 	},
 	{
+		// svelte-eslint-parser only parses the component markup/bindings;
+		// it needs to be told to delegate parsing of `<script lang="ts">`
+		// content to the TypeScript parser, otherwise TS-only syntax
+		// (import type, type annotations on $state(), etc.) fails with
+		// generic "Unexpected token" parsing errors.
+		files: ['**/*.svelte'],
+		languageOptions: {
+			parserOptions: {
+				parser: tsLint.parser,
+			},
+		},
+	},
+	{
 		files: ['**/*.svelte'],
 		rules: {
 			'@typescript-eslint/no-unused-expressions': 'off',
