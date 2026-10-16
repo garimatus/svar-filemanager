@@ -1,1 +1,1 @@
-export const getData = () => [];
+export const getData = () => []

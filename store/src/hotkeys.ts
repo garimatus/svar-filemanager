@@ -1,193 +1,185 @@
-import { locateAttr } from "@svar-ui/lib-dom";
+import { locateAttr } from '@svar-ui/lib-dom'
 
-import type { TID, IParsedEntity } from "./types";
-import { getParentPath, getSelectionOnNavigation } from "./helpers";
+import type { TID, IParsedEntity } from './types'
+import { getParentPath, getSelectionOnNavigation } from './helpers'
 
 export function hotkeys(node: HTMLElement, config: any) {
-	const { api } = config;
+	const { api } = config
 
 	function handleHotkey(hotkey: string, e: KeyboardEvent) {
-		const panel = config.getPanel();
-		const selected = panel.selected;
+		const panel = config.getPanel()
+		const selected = panel.selected
 
-		const ctrl = e.ctrlKey || e.metaKey;
-		const shift = e.shiftKey;
+		const ctrl = e.ctrlKey || e.metaKey
+		const shift = e.shiftKey
 
-		let options;
-		const item = selected?.[0] ? api.getFile(selected[0]) : null;
+		let options
+		const item = selected?.[0] ? api.getFile(selected[0]) : null
 		if (selected?.length) {
-			if (selected.length > 1)
-				options = config.menuOptions("multiselect");
-			else options = config.menuOptions(item.type, item);
+			if (selected.length > 1) options = config.menuOptions('multiselect')
+			else options = config.menuOptions(item.type, item)
 		} else {
-			options = config.menuOptions("body");
+			options = config.menuOptions('body')
 		}
-		const hotkeys = `${ctrl ? "ctrl+" : ""}${
-			shift ? "shift+" : ""
-		}${hotkey}`;
+		const hotkeys = `${ctrl ? 'ctrl+' : ''}${shift ? 'shift+' : ''}${hotkey}`
 		const option = options
 			? options.find((o: any) => o.hotkey?.toLowerCase() === hotkeys)
-			: false;
-		const action = config.performAction;
+			: false
+		const action = config.performAction
 		if (option) {
 			switch (hotkeys) {
-				case "ctrl+c":
-					action("copy");
-					break;
-				case "ctrl+x":
-					action("move");
-					break;
-				case "ctrl+v":
-					action("paste", item);
-					break;
-				case "delete":
-					action("delete");
-					break;
-				case "ctrl+r":
-					e.preventDefault();
-					action("rename", item);
-					break;
-				case "ctrl+d":
-					e.preventDefault();
-					action("download", item);
-					break;
+				case 'ctrl+c':
+					action('copy')
+					break
+				case 'ctrl+x':
+					action('move')
+					break
+				case 'ctrl+v':
+					action('paste', item)
+					break
+				case 'delete':
+					action('delete')
+					break
+				case 'ctrl+r':
+					e.preventDefault()
+					action('rename', item)
+					break
+				case 'ctrl+d':
+					e.preventDefault()
+					action('download', item)
+					break
 				default:
-					option.handler?.({ context: item });
+					option.handler?.({ context: item })
 			}
 		}
 
 		switch (hotkey) {
-			case "enter": {
-				if (ctrl || shift) break;
-				const { _crumbs: crumbs, _selectNavigation: selectNavigation } =
-					panel;
+			case 'enter': {
+				if (ctrl || shift) break
+				const { _crumbs: crumbs, _selectNavigation: selectNavigation } = panel
 
 				if (selectNavigation) {
-					const path = getParentPath(crumbs);
+					const path = getParentPath(crumbs)
 					if (path) {
-						const selection = getSelectionOnNavigation(
-							path,
-							crumbs
-						);
-						api.exec("set-path", {
+						const selection = getSelectionOnNavigation(path, crumbs)
+						api.exec('set-path', {
 							id: path,
 							selected: [selection],
-						});
+						})
 					}
 				} else if (selected.length === 1) {
-					const item = api.getFile(selected[0]);
+					const item = api.getFile(selected[0])
 					if (item) {
-						api.exec(
-							item.type === "folder" ? "set-path" : "open-file",
-							{ id: item.id }
-						);
+						api.exec(item.type === 'folder' ? 'set-path' : 'open-file', {
+							id: item.id,
+						})
 					}
 				}
-				break;
+				break
 			}
 
-			case "arrowup":
-			case "arrowleft": {
+			case 'arrowup':
+			case 'arrowleft': {
 				const {
 					_files: files,
 					_selected: selectedFiles,
 					path,
 					_selectNavigation: selectNavigation,
-				} = panel;
+				} = panel
 
-				let nextId: TID;
+				let nextId: TID | undefined = undefined
 
 				if (selectedFiles.length) {
-					const start = selectedFiles.at(0).id;
+					const start = selectedFiles.at(0).id
 					const currentIndex = files.findIndex(
 						(file: IParsedEntity) => file.id === start
-					);
+					)
 					if (currentIndex !== -1) {
-						const next = currentIndex - 1;
-						if (files[next]) nextId = files[next].id;
-						else if (path !== "/" && !(ctrl || shift)) {
-							api.exec("select-file", { type: "navigation" });
+						const next = currentIndex - 1
+						if (files[next]) nextId = files[next].id
+						else if (path !== '/' && !(ctrl || shift)) {
+							api.exec('select-file', { type: 'navigation' })
 						}
 					}
 				} else {
-					if (selectNavigation) break;
-					if (path !== "/") {
-						api.exec("select-file", { type: "navigation" });
-						break;
+					if (selectNavigation) break
+					if (path !== '/') {
+						api.exec('select-file', { type: 'navigation' })
+						break
 					}
-					nextId = files.at(0)?.id;
+					nextId = files.at(0)?.id
 				}
 
 				if (nextId)
-					api.exec("select-file", {
+					api.exec('select-file', {
 						id: nextId,
 						toggle: ctrl,
 						range: shift,
-					});
-				break;
+					})
+				break
 			}
 
-			case "arrowdown":
-			case "arrowright": {
+			case 'arrowdown':
+			case 'arrowright': {
 				const {
 					_files: files,
 					_selected: selectedFiles,
 					path,
 					_selectNavigation: selectNavigation,
-				} = panel;
+				} = panel
 
-				let nextId: TID;
+				let nextId: TID | undefined = undefined
 
 				if (selectedFiles.length) {
-					const start = selectedFiles.at(-1).id;
+					const start = selectedFiles.at(-1).id
 					const currentIndex = files.findIndex(
 						(file: IParsedEntity) => file.id === start
-					);
+					)
 					if (currentIndex !== -1) {
-						const next = currentIndex + 1;
-						if (files[next]) nextId = files[next].id;
+						const next = currentIndex + 1
+						if (files[next]) nextId = files[next].id
 					}
 				} else {
-					if (path !== "/" && !selectNavigation) {
-						api.exec("select-file", { type: "navigation" });
-						break;
+					if (path !== '/' && !selectNavigation) {
+						api.exec('select-file', { type: 'navigation' })
+						break
 					}
-					nextId = files.at(0)?.id;
+					nextId = files.at(0)?.id
 				}
 
 				if (nextId) {
-					api.exec("select-file", {
+					api.exec('select-file', {
 						id: nextId,
 						toggle: ctrl,
 						range: shift,
-					});
+					})
 				}
-				break;
+				break
 			}
 		}
 	}
 
 	function handleKeydown(e: any) {
-		const code = e.code.replace("Key", "").toLowerCase();
-		handleHotkey(code, e);
+		const code = e.code.replace('Key', '').toLowerCase()
+		handleHotkey(code, e)
 
 		//tracking active panel
-		if (code == "tab")
+		if (code == 'tab')
 			setTimeout(() => {
-				const active = document.activeElement;
-				if (active.className.indexOf("table") != -1) {
-					api.exec("set-active-panel", {
-						panel: +locateAttr(active, "data-panel"),
-					});
+				const active = document.activeElement
+				if (active && active.className.indexOf('table') != -1) {
+					api.exec('set-active-panel', {
+						panel: +locateAttr(active, 'data-panel'),
+					})
 				}
-			});
+			})
 	}
 
-	node.addEventListener("keydown", handleKeydown);
+	node.addEventListener('keydown', handleKeydown)
 
 	return {
 		destroy: () => {
-			node.removeEventListener("keydown", handleKeydown);
+			node.removeEventListener('keydown', handleKeydown)
 		},
-	};
+	}
 }
