@@ -1,5 +1,5 @@
 // vite.config.ts
-import { process } from 'node:process'
+import { env } from 'node:process'
 import { resolve } from 'path'
 import { defineConfig, loadEnv } from 'vite'
 import dts from 'vite-plugin-dts'
@@ -20,8 +20,8 @@ const minify = {
 }
 
 export default function ({ mode }) {
-	process.env = { ...process.env, ...loadEnv(mode, process.cwd(), 'WX') }
-	const trial = !!process.env.WX_TRIAL_PACKAGE
+	import.meta.env = { ...env, ...loadEnv(mode, import.meta.url, 'WX') }
+	const trial = !!import.meta.env.WX_TRIAL_PACKAGE
 	const isProduction = mode !== 'development' && mode !== 'test'
 
 	const config = {
