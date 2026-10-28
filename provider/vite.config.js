@@ -1,12 +1,13 @@
 // vite.config.ts
-import { process } from 'node:process'
-import { resolve, __dirname } from 'path'
+import { env } from 'node:process'
+import { resolve } from 'path'
 import { defineConfig, loadEnv } from 'vite'
 import dts from 'vite-plugin-dts'
 import { waitChanges, waitOn } from '@svar-ui/vite-tools'
 
+const __dirname = new URL('.', import.meta.url).pathname
 export default async ({ mode }) => {
-	process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
+	import.meta.env = { ...env, ...loadEnv(mode, import.meta.url, 'WX') }
 
 	const files =
 		mode === 'production' ? [] : [resolve(__dirname, '../store/dist/index.js')]

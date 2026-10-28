@@ -32,7 +32,9 @@ interface IMultiResult {
 export default class RestDataProvider extends Rest<TProviderMethodsConfig> {
 	constructor(url: string) {
 		super(url)
+		this._url = url
 	}
+	_url: string = ''
 	getHandlers(): ActionMap<TProviderMethodsConfig> {
 		return {
 			'create-file': {
@@ -159,7 +161,7 @@ export default class RestDataProvider extends Rest<TProviderMethodsConfig> {
 	}
 
 	async loadFiles(id: TID): Promise<IEntity[]> {
-		const data = await this.send<IEntity[]>(
+		const data: IEntity[] = await this.send<IEntity[]>(
 			id ? `files/${encodeURIComponent(id)}` : 'files',
 			'GET'
 		)
@@ -174,7 +176,7 @@ export default class RestDataProvider extends Rest<TProviderMethodsConfig> {
 	}
 
 	parseDates(data: IEntity[]): IEntity[] {
-		data.forEach(item => {
+		data.forEach((item: IEntity) => {
 			if (item.date) item.date = new Date(item.date)
 		})
 		return data
@@ -225,7 +227,7 @@ export default class RestDataProvider extends Rest<TProviderMethodsConfig> {
 	private handleNonUniqueNames(serverIds: TID[], localIds: TID[]): void {
 		localIds.forEach((id: TID, i: number) => {
 			if (id !== serverIds[i])
-				this.exec('file-renamed', {
+				super.exec('file-renamed', {
 					id,
 					newId: serverIds[i],
 				})
