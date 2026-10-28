@@ -1,34 +1,42 @@
-<script>
+<script lang="ts">
+	import type { IApi, IParsedEntity } from '@svar-ui/filemanager-store'
 	import { getContext } from 'svelte'
 	import { delegateClick, setID } from '@svar-ui/lib-dom'
 	import { getSelectionOnNavigation } from '@svar-ui/filemanager-store'
 	import Icon from './ui/Icon.svelte'
+	import type { IPublicWritable } from '@svar-ui/lib-state'
+	import type {
+		TActivePanel,
+		IPanel,
+		TID,
+	} from '@svar-ui/filemanager-store/dist/types/types'
 
-	let { panel } = $props()
+	let { panel }: { panel?: TActivePanel } = $props()
 
-	const api = getContext('filemanager-store')
-	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const api: IApi = getContext('filemanager-store')
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
 
-	const { panels } = api.getReactiveState()
-	const files = $derived($panels[panel]._files)
-	const crumbs = $derived($panels[panel]._crumbs)
+	const { panels }: { panels?: IPublicWritable<Partial<IPanel>[]> } =
+		api.getReactiveState()
+	const files: IParsedEntity[] | null = $derived($panels[panel]?._files)
+	const crumbs: IParsedEntity[] | null = $derived($panels[panel]?._crumbs)
 
-	function click(id) {
-		const selectedId = getSelectionOnNavigation(id, crumbs)
+	function click(id: TID): void {
+		const selectedId: TID | null = getSelectionOnNavigation(id, crumbs)
 		api.exec('set-path', {
 			id,
-			panel,
 			...(selectedId && { selected: [selectedId] }),
+			panel,
 		})
 	}
 
-	let loading = $state(null)
+	let loading: boolean | null = $state(null)
 
 	$effect(() => {
 		if (files) loading = null
 	})
 
-	function refresh() {
+	function refresh(): void {
 		loading = true
 		api.exec('request-data', {
 			id: crumbs[crumbs.length - 1].id,

@@ -31,6 +31,7 @@ export default [
 			// need to be revised with next version of toolchain
 			'svelte/no-unused-svelte-ignore': 'off',
 			'svelte/valid-compile': 'off',
+			'svelte/no-inner-declarations': 'off',
 			// Ignore unused vars starting with _
 			// "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
 			// // Turn off the need for explicit function return types
