@@ -13,7 +13,7 @@ import Files from '@lucide/svelte/icons/files'
 import Search from '@lucide/svelte/icons/search'
 import type { LucideProps } from '@lucide/svelte/icons'
 import type { IParsedEntity } from '@svar-ui/filemanager-store'
-import { whitelist } from '../icons'
+import whitelist from '../icons'
 
 // maps a whitelisted type/extension to the lucide icon that represents it,
 // mirroring the categories the old CDN-based icon service exposed

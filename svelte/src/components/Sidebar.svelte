@@ -1,21 +1,37 @@
-<script>
-	import { getContext } from 'svelte'
+<script lang="ts">
+	import { type Component, getContext } from 'svelte'
 
 	import { Button } from '@svar-ui/svelte-core'
-	import { DropDownMenu, registerMenuItem } from '@svar-ui/svelte-menu'
+	import {
+		DropDownMenu,
+		type IMenuOption,
+		registerMenuItem,
+	} from '@svar-ui/svelte-menu'
 
 	import Tree from './Tree/Tree.svelte'
 	// import Drive from './Drive.svelte'
 	import UploadButton from './UploadButton.svelte'
 
-	let { readonly, menuOptions } = $props()
+	let {
+		readonly,
+		menuOptions,
+	}: { readonly?: boolean; menuOptions?: (id: string) => IMenuOption[] } =
+		$props()
 
-	const _ = getContext('wx-i18n').getGroup('filemanager')
-	const { showPrompt } = getContext('filemanager-modals')
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
+	const { showPrompt }: { showPrompt: (options: any) => void } =
+		getContext('filemanager-modals')
 
-	registerMenuItem('upload', UploadButton)
+	registerMenuItem(
+		'upload',
+		UploadButton as unknown as Component<
+			{ option?: any },
+			object,
+			'' | 'option'
+		>
+	)
 
-	function handleClick({ action }) {
+	function handleClick({ action }: { action: IMenuOption }) {
 		if (action) {
 			if (action.id === 'add-file')
 				showPrompt({
@@ -37,8 +53,8 @@
 		}
 	}
 
-	let options = $derived(
-		menuOptions('add').map(option => {
+	let options: IMenuOption[] = $derived(
+		menuOptions('add').map((option: IMenuOption) => {
 			option.text = _(option.text)
 			return option
 		})

@@ -1,15 +1,27 @@
-<script>
+<script lang="ts">
+	import type { IApi } from '@svar-ui/filemanager-store'
 	import { getContext } from 'svelte'
 	import Panel from './Cards/Panel.svelte'
 	import Icon from './ui/Icon.svelte'
+	import type { IPublicWritable } from '@svar-ui/lib-state'
+	import type {
+		IPanel,
+		TActivePanel,
+	} from '@svar-ui/filemanager-store/dist/types/types'
 
-	const _ = getContext('wx-i18n').getGroup('filemanager')
-	const api = getContext('filemanager-store')
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
+	const api: IApi = getContext('filemanager-store')
 
-	let { panels, activePanel } = api.getReactiveState()
-	let crumbs = $derived($panels[$activePanel]._crumbs)
+	let {
+		panels,
+		activePanel,
+	}: {
+		panels?: IPublicWritable<Partial<IPanel>[]>
+		activePanel?: IPublicWritable<TActivePanel>
+	} = api.getReactiveState()
+	let crumbs: any = $derived($panels[$activePanel]._crumbs)
 
-	function clearSearch() {
+	function clearSearch(): void {
 		api.exec('filter-files', {
 			text: '',
 		})

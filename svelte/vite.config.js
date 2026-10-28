@@ -55,7 +55,7 @@ export default async ({ mode }) => {
 	if (process.env.WX_BUILD_STATS) {
 		build = {
 			lib: {
-				entry: resolve(__dirname, 'src/index.js'),
+				entry: resolve(__dirname, 'src/index.ts'),
 				name,
 				formats: ['es'],
 				fileName: format => `${name}.${format}.js`,

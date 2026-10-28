@@ -1,16 +1,32 @@
-<script>
+<script lang="ts">
+	import type { IApi } from '@svar-ui/filemanager-store'
 	import { setID } from '@svar-ui/lib-dom'
 	import Folder from './Folder.svelte'
 	import { getContext } from 'svelte'
+	import type { IPublicWritable } from '@svar-ui/lib-state'
+	import type {
+		IPanel,
+		IParsedEntity,
+		TActivePanel,
+	} from '@svar-ui/filemanager-store/dist/types/types'
 
-	const api = getContext('filemanager-store')
-	const { panels, activePanel } = api.getReactiveState()
+	const api: IApi = getContext('filemanager-store')
+	const {
+		panels,
+		activePanel,
+	}: {
+		panels?: IPublicWritable<Partial<IPanel>[]>
+		activePanel?: IPublicWritable<TActivePanel>
+	} = api.getReactiveState()
 
-	let path = $derived($panels[$activePanel].path)
+	let path: string | null = $derived($panels[$activePanel].path)
 
-	let { folderIcon = false, folder = {} } = $props()
+	let {
+		folderIcon = false,
+		folder = {} as IParsedEntity,
+	}: { folderIcon?: string | boolean; folder?: IParsedEntity } = $props()
 
-	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const _ = (getContext('wx-i18n') as any).getGroup('filemanager')
 
 	const hasFolders = $derived(!!folder.data?.find(i => i.type === 'folder'))
 	const name = $derived(folder.id == '/' ? _(folder.name) : folder.name)
@@ -30,14 +46,14 @@
 			data-action="toggle"
 		></i>
 	{:else}<span class="wx-toggle-placeholder"></span>{/if}
-	<i class={folderIcon || 'wxi-folder'}></i>
+	<i class={typeof folderIcon === 'string' ? folderIcon : 'wxi-folder'}></i>
 	<span class="wx-name"> {name} </span>
 </li>
 
 {#if open && folder.data && folder.data.length && hasFolders}
-	{#each folder.data as folder (folder.id)}
-		{#if folder.type === 'folder'}
-			<Folder {folder} />
+	{#each folder.data as child (child.id)}
+		{#if child.type === 'folder'}
+			<Folder folder={child} />
 		{/if}
 	{/each}
 {/if}

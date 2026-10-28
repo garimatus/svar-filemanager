@@ -1,18 +1,21 @@
-<script>
+<script lang="ts">
+	import type { IApi, IDrive } from '@svar-ui/filemanager-store'
 	import { getContext } from 'svelte'
 	import { formatSize } from '@svar-ui/filemanager-store'
+	import { IPublicWritable } from '@svar-ui/lib-state'
 
-	const api = getContext('filemanager-store')
-	const drive = api.getReactiveState().drive
-	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const api: IApi = getContext('filemanager-store')
+	const drive: IPublicWritable<IDrive> = api.getReactiveState().drive
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
 
-	let used = $derived($drive ? $drive.used : '')
-	let total = $derived($drive ? $drive.total : '')
+	let used: number = $derived($drive ? $drive.used : 0)
+	let total: number = $derived($drive ? $drive.total : 0)
 </script>
 
 {#if used && total}
 	<div class="wx-drive">
-		<progress value={used} max={total} class="wx-progress"></progress>
+		<progress value={Number(used)} max={Number(total)} class="wx-progress"
+		></progress>
 		<p>{formatSize(used)} {_('of')} {formatSize(total)} {_('used')}</p>
 	</div>
 {/if}

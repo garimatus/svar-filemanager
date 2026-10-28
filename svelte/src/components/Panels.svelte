@@ -1,12 +1,16 @@
-<script>
+<script lang="ts">
+	import type { IApi } from '@svar-ui/filemanager-store'
 	import TableView from './Table/View.svelte'
 	import { getContext } from 'svelte'
 	import { setID } from '@svar-ui/lib-dom'
+	import type { IPublicWritable } from '@svar-ui/lib-state'
+	import type { TActivePanel } from '@svar-ui/filemanager-store/dist/types/types'
 
-	const api = getContext('filemanager-store')
-	const activePanel = api.getReactiveState().activePanel
+	const api: IApi = getContext('filemanager-store')
+	const activePanel: IPublicWritable<TActivePanel> =
+		api.getReactiveState().activePanel
 
-	function toggleActive(panel) {
+	function toggleActive(panel: TActivePanel): void {
 		api.exec('set-active-panel', { panel })
 	}
 </script>

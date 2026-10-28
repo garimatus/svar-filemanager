@@ -1,9 +1,9 @@
-<script>
+<script lang="ts">
 	import { getContext } from 'svelte'
 
 	let { value = '', onsearch } = $props()
 
-	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const _ = (getContext('wx-i18n') as any).getGroup('filemanager')
 
 	let node = null
 	let icon = $derived(value !== '' ? 'wxi-close' : 'wxi-search')

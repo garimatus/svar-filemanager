@@ -1,6 +1,12 @@
-<script>
+<script lang="ts">
+	import type { IApi, IParsedEntity } from '@svar-ui/filemanager-store'
 	import { clickOutside, locateID, setID } from '@svar-ui/lib-dom'
-	import { ActionMenu, ContextMenu } from '@svar-ui/svelte-menu'
+	import {
+		ActionMenu,
+		ContextMenu,
+		type IMenuOption,
+		type IMenuOptionClick,
+	} from '@svar-ui/svelte-menu'
 	import { Uploader } from '@svar-ui/svelte-uploader'
 	import { hotkeys } from '@svar-ui/filemanager-store'
 
@@ -14,33 +20,51 @@
 	import TableView from './Table/View.svelte'
 	import CardsView from './Cards/View.svelte'
 
-	let { readonly = false, menuOptions, extraInfo } = $props()
+	import type { IPanel } from '@svar-ui/filemanager-store/dist/types/types'
 
-	let sidebarWidth = $state()
+	let {
+		readonly = false,
+		menuOptions,
+		extraInfo,
+	}: {
+		readonly?: boolean
+		menuOptions: (s?: string, item?: IParsedEntity) => IMenuOption[]
+		extraInfo: any
+	} = $props()
 
-	let narrowMode = $state()
-	let showSidebar = $state(false)
+	let sidebarWidth: number = $state()
 
-	function resize(node) {
-		const ro = new ResizeObserver(entries => {
-			narrowMode = entries[0].borderBoxSize[0].inlineSize < 768
-		})
+	let narrowMode: boolean = $state(false)
+	let showSidebar: boolean = $state(false)
+
+	function resize(node: Element): void {
+		const ro: ResizeObserver = new ResizeObserver(
+			(entries: ResizeObserverEntry[]) => {
+				narrowMode = entries[0].borderBoxSize[0].inlineSize < 768
+			}
+		)
 		ro.observe(node)
 	}
 
-	function toggleSidebar() {
+	function toggleSidebar(): void {
 		showSidebar = !showSidebar
 	}
 
-	function hideSidebar(ev) {
+	function hideSidebar(ev: Event): void {
 		if (narrowMode && locateID(ev) !== 'toggle-tree') {
 			showSidebar = false
 		}
 	}
 
-	const api = getContext('filemanager-store')
-	const { showPrompt, showConfirm } = getContext('filemanager-modals')
-	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const api: IApi = getContext('filemanager-store')
+	const {
+		showPrompt,
+		showConfirm,
+	}: {
+		showPrompt: (config: { item: any; add?: boolean }) => void
+		showConfirm: (config: { selected: string[] }) => void
+	} = getContext('filemanager-modals') as any
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
 
 	const {
 		mode: rMode,
@@ -49,28 +73,33 @@
 		panels: rPanels,
 	} = api.getReactiveState()
 
-	const selected = $derived($rPanels[$rActivePanel].selected)
-	const path = $derived($rPanels[$rActivePanel].path)
-	let contextMenuOptions = $state([])
+	const selected: string[] = $derived($rPanels[$rActivePanel].selected)
+	const path: string = $derived($rPanels[$rActivePanel].path)
+	let contextMenuOptions: IMenuOption[] = $state([])
 
-	const previewOption = {
+	const previewOption: IMenuOption = {
 		icon: 'wxi-eye',
 		text: 'Preview',
 		id: 'preview',
 	}
 
-	function getReadonlyMenu(type) {
-		let options = narrowMode ? [previewOption] : []
+	function getReadonlyMenu(type: string): IMenuOption[] {
+		let options: IMenuOption[] = narrowMode ? [previewOption] : []
 		if (type === 'file')
-			options = [...options, ...menuOptions().filter(o => o.id === 'download')]
+			options = [
+				...options,
+				...menuOptions().filter((o: IMenuOption) => o.id === 'download'),
+			]
 		return options
 	}
 
-	function resolveContext(id, e) {
-		const item = id ? api.getFile(id) : null
-		const inTree = e.target.closest('.tree-item.folder')
+	function resolveContext(id: string, e: Event): IParsedEntity | object {
+		const item: IParsedEntity | null = id ? api.getFile(id) : null
+		const inTree: Element | null = (e.target as HTMLElement).closest(
+			'.tree-item.folder'
+		)
 
-		let options
+		let options: IMenuOption[]
 
 		if (readonly) {
 			options = getReadonlyMenu(item?.type)
@@ -111,7 +140,7 @@
 		}
 
 		if (options?.length) {
-			options.forEach(o => {
+			options.forEach((o: IMenuOption) => {
 				if (inTree) o.hotkey = ''
 				if (o.text) o.text = _(o.text)
 				if (o.hotkey) o.subtext = o.hotkey
@@ -121,16 +150,21 @@
 		}
 	}
 
-	let copy = null
-	function handleMenu(e) {
-		const { action, context } = e
+	let copy: { action: string; ids: string[] } | null = null
+	function handleMenu(e: IMenuOptionClick): void {
+		const { action, context }: { action?: IMenuOption | null; context?: any } =
+			e
 		if (action) {
-			performAction(action.id, context, !action.hotkey)
+			performAction(action.id.toString(), context, !action.hotkey as boolean)
 		}
 	}
 
-	function performAction(action, context, inTree) {
-		const ids = inTree ? [context.id] : selected
+	function performAction(
+		action: string,
+		context: IParsedEntity,
+		inTree: boolean
+	): void {
+		const ids: string[] = inTree ? [context.id] : selected
 		switch (action) {
 			case 'download':
 				api.exec('download-file', { id: context.id })
@@ -162,14 +196,14 @@
 		}
 	}
 
-	function getPanel() {
+	function getPanel(): Partial<IPanel> {
 		return $rPanels[$rActivePanel]
 	}
 
-	async function handleUpload(f) {
+	async function handleUpload(f: { file: File }): Promise<void> {
 		//if active panel was changed before upload, wait until for it
 		await tick()
-		const { name, size } = f.file
+		const { name, size }: { name: string; size: number } = f.file
 
 		api.exec('create-file', {
 			file: {
@@ -240,7 +274,7 @@
 								</div>
 								{#if $rPreview}
 									<div class="wx-info">
-										<Info {extraInfo} />
+										<Info {extraInfo} {narrowMode} />
 									</div>
 								{/if}
 							</div>
@@ -254,7 +288,7 @@
 							</div>
 							{#if $rPreview}
 								<div class="wx-info">
-									<Info {extraInfo} />
+									<Info {extraInfo} {narrowMode} />
 								</div>
 							{/if}
 						{/if}

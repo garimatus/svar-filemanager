@@ -1,21 +1,29 @@
-<script>
+<script lang="ts">
+	import type { IApi } from '@svar-ui/filemanager-store'
 	import { getContext } from 'svelte'
 	import { apiKey } from '@svar-ui/svelte-uploader'
 	import { locateAttr } from '@svar-ui/lib-dom'
+	import type { IPublicWritable } from '@svar-ui/lib-state'
+	import type { TActivePanel } from '@svar-ui/filemanager-store/dist/types/types'
 
-	let { children } = $props()
+	let { children }: { children?: () => any } = $props()
 
-	const api = getContext('filemanager-store')
-	const activePanel = api.getReactiveState().activePanel
+	const api: IApi = getContext('filemanager-store')
+	const activePanel: IPublicWritable<TActivePanel> =
+		api.getReactiveState().activePanel
 
-	const uploaderApi = getContext(apiKey)
+	const uploaderApi: any = getContext(apiKey)
 
-	const apiSettings = {
+	const apiSettings: {
+		selected: () => void
+		dragEnter: () => void
+		dragLeave: () => void
+	} = {
 		selected: () => {
-			const panel = locateAttr(self, 'data-panel')
-			if (panel && panel != $activePanel) {
+			const panel: string | null = locateAttr(self, 'data-panel')
+			if (panel && panel != $activePanel.toString()) {
 				api.exec('set-active-panel', {
-					panel: panel * 1,
+					panel: (Number(panel) * 1) as TActivePanel,
 				})
 			}
 		},
@@ -23,7 +31,7 @@
 		dragLeave: () => self.classList.toggle('wx-active'),
 	}
 
-	let self = $state()
+	let self: any = $state()
 </script>
 
 <div

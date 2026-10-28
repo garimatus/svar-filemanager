@@ -1,4 +1,4 @@
-import type { Component, ComponentProps } from 'svelte'
+import type { Component } from 'svelte'
 import type { IMenuOption } from '@svar-ui/svelte-menu'
 import { Tooltip as BaseTooltip } from '@svar-ui/svelte-core'
 
@@ -47,7 +47,7 @@ type TooltipContentData = {
 }
 
 export declare const Tooltip: Component<
-	Omit<ComponentProps<typeof BaseTooltip>, 'content'> & {
+	Omit<typeof SvelteComponent_1<typeof BaseTooltip>, 'content'> & {
 		api?: IApi
 		overflow?: boolean
 		content?: Component<{
@@ -86,3 +86,5 @@ export type FilemanagerActions<TMethodsConfig extends Record<string, any>> = {
 } & {
 	[key: `on${string}`]: (ev?: any) => void
 }
+
+export type DateFormatter = (date: Date) => string

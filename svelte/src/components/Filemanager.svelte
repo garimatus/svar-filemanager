@@ -7,26 +7,32 @@
 	import { en } from '@svar-ui/filemanager-locales'
 
 	// stores
-	import { EventBusRouter } from '@svar-ui/lib-state'
+	import { EventBus, EventBusRouter, type IEventBus } from '@svar-ui/lib-state'
 	import { DataStore, getMenuOptions } from '@svar-ui/filemanager-store'
 	import type { DataStore as DataStoreType } from '@svar-ui/filemanager-store'
-	// @ts-expect-error - no type declarations for .svelte component imports
 	import Modals from './Modals.svelte'
 	// import { whitelist } from '../icons'
-
+	import type {
+		IDrive,
+		IParsedEntity,
+		TActivePanel,
+		TMode,
+		IMenuOption,
+		IPanel,
+	} from '@svar-ui/filemanager-store/dist/types/types'
 	import iconService from '../services/iconService'
-	type TActivePanel = 0 | 1
+	import type { IApi } from '@svar-ui/filemanager-store'
 
 	let {
 		data = [],
-		mode = 'cards' as 'cards' | 'table',
+		mode = 'cards',
 		drive = null,
 		preview = false,
 		panels = [],
-		activePanel = 0 as TActivePanel,
-		readonly = false as boolean,
-		menuOptions = getMenuOptions as (mode: any) => any[],
-		extraInfo = null as any,
+		activePanel = 0,
+		readonly = false,
+		menuOptions = getMenuOptions,
+		extraInfo = null,
 		init = null,
 		// icons = function (file, size) {
 		// 	const { type, ext } = file
@@ -43,34 +49,55 @@
 
 		// 	return `https://cdn.svar.dev/icons/filemanager/vivid/${size}/${icon}.svg`
 		// },
-		icons = iconService,
+		icons = iconService as unknown as (
+			file: IParsedEntity,
+			size: number
+		) => string | false,
 		previews = null,
 		...restProps
+	}: {
+		data?: any[]
+		mode?: TMode
+		drive?: IDrive | null
+		preview?: boolean
+		panels?: Partial<IPanel[]>
+		activePanel?: TActivePanel
+		readonly?: boolean
+		menuOptions?: (mode: any) => IMenuOption[]
+		extraInfo?: any
+		init?: ((api: any) => void) | null
+		icons?: (file: IParsedEntity, size: number) => string | false
+		previews?: ((file: IParsedEntity, size: number) => string | false) | null
+		loadData?: ((file: IParsedEntity) => Promise<any>) | null
+		[key: `on${string}`]: ((ev: any) => void) | undefined
 	} = $props()
 
 	// init stores
 	const dataStore: DataStoreType = new DataStore()
 
 	// define event route
-	let firstInRoute = dataStore.in
+	let firstInRoute: EventBus<any, any> = dataStore.in
 
-	const dash = /-/g
-	let lastInRoute: any = new EventBusRouter((a: string, b) => {
-		const name = 'on' + a.replace(dash, '')
-		if (restProps[name]) {
-			restProps[name](b)
+	const dash: RegExp = /-/g
+	let lastInRoute: EventBusRouter<unknown> = new EventBusRouter(
+		(a: string, b) => {
+			const name = 'on' + a.replace(dash, '')
+			if (restProps[name]) {
+				restProps[name](b)
+			}
 		}
-	})
+	)
 	firstInRoute.setNext(lastInRoute)
 
 	// public API
 	export const // state
-		getState = dataStore.getState.bind(dataStore),
-		getReactiveState = dataStore.getReactive.bind(dataStore),
+		getState: any = dataStore.getState.bind(dataStore),
+		getReactiveState: any = dataStore.getReactive.bind(dataStore),
 		getStores = () => ({ data: dataStore }),
 		// events
-		exec = firstInRoute.exec,
-		setNext = (ev: any) => (lastInRoute = lastInRoute.setNext(ev)),
+		exec: (name: string, ev: Event) => Promise<any> = firstInRoute.exec,
+		setNext = (ev: IEventBus<any>): any =>
+			(lastInRoute = lastInRoute.setNext(ev) as EventBusRouter<unknown>),
 		intercept = firstInRoute.intercept.bind(firstInRoute),
 		on = firstInRoute.on.bind(firstInRoute),
 		detach = firstInRoute.detach.bind(firstInRoute),
@@ -78,7 +105,7 @@
 		getFile = (id: string) => dataStore.getFile(id),
 		serialize = (id: string) => dataStore.serialize(id)
 
-	const api = {
+	const api: IApi = {
 		getState,
 		getReactiveState,
 		getStores,
@@ -91,7 +118,7 @@
 		serialize,
 	}
 
-	const none = () => null
+	const none: () => null = () => null
 	// common API available in components
 	setContext('filemanager-store', {
 		getReactiveState: dataStore.getReactive.bind(dataStore),
@@ -107,7 +134,7 @@
 		getFile: dataStore.getFile.bind(dataStore),
 	})
 
-	let init_once = true
+	let init_once: boolean = true
 	const reinitStore = () => {
 		dataStore.init({
 			data,
@@ -129,6 +156,10 @@
 
 <Locale words={en} optional={true}>
 	<Modals>
-		<Layout {readonly} {menuOptions} {extraInfo} />
+		<Layout
+			readonly={readonly as never}
+			menuOptions={menuOptions as never}
+			extraInfo={extraInfo as never}
+		/>
 	</Modals>
 </Locale>

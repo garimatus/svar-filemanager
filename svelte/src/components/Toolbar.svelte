@@ -4,7 +4,8 @@
 	import { setID } from '@svar-ui/lib-dom'
 	import Search from './ui/Search.svelte'
 	import Icon from './ui/Icon.svelte'
-	import { IApi, TMode } from '@svar-ui/filemanager-store'
+	import type { IApi, TMode } from '@svar-ui/filemanager-store'
+	import type { IPublicWritable } from '@svar-ui/lib-state'
 
 	let {
 		narrowMode = false,
@@ -13,24 +14,38 @@
 
 	const api: IApi = getContext('filemanager-store')
 
-	const { mode, preview: info, search: searchValue } = api.getReactiveState()
+	const {
+		mode,
+		preview: info,
+		search: searchValue,
+	}: {
+		mode?: IPublicWritable<TMode>
+		preview?: IPublicWritable<boolean>
+		search: IPublicWritable<string>
+	} = api.getReactiveState()
 
-	const _ = (getContext('wx-i18n') as any).getGroup('filemanager')
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
 
-	const options = [
-		{ icon: 'wxi-view-sequential', id: 'table' },
-		{ icon: 'wxi-view-grid', id: 'cards' },
-		{ icon: 'wxi-view-column', id: 'panels' },
+	const options: {
+		id: string | number
+		label: string
+		icon?: string
+		title?: string
+		tooltip?: string
+	}[] = [
+		{ icon: 'wxi-view-sequential', id: 'table', label: _('Table') },
+		{ icon: 'wxi-view-grid', id: 'cards', label: _('Cards') },
+		{ icon: 'wxi-view-column', id: 'panels', label: _('Panels') },
 	]
 
-	function changeMode({ value }: { value: TMode }) {
+	function changeMode({ value }: { value: TMode }): void {
 		api.exec('set-mode', { mode: value })
 	}
-	function toggleInfo(e: Event) {
+	function toggleInfo(e: Event): void {
 		e.preventDefault()
 		api.exec('show-preview', { mode: !$info })
 	}
-	function search(e: { value: string }) {
+	function search(e: { value: string }): void {
 		api.exec('filter-files', { text: e.value })
 	}
 </script>
@@ -44,7 +59,7 @@
 				<Icon onclick={() => onshowtree && onshowtree()} name={'subtask'} />
 			</div>
 		{/if}
-		<Search onsearch={search} value={$searchValue} />
+		<Search onsearch={search as never} value={$searchValue as never} />
 	</div>
 
 	<div class="wx-right">

@@ -1,5 +1,9 @@
-<script>
-	let { name = '', spin = false, onclick } = $props()
+<script lang="ts">
+	let {
+		name = '',
+		spin = false,
+		onclick,
+	}: { name?: string; spin?: boolean; onclick?: () => void } = $props()
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->

@@ -1,38 +1,65 @@
-<script>
-	import { getContext } from 'svelte'
+<script lang="ts">
+	import type { IApi } from '@svar-ui/filemanager-store'
+	import { getContext, type Component } from 'svelte'
 	import { formatSize } from '@svar-ui/filemanager-store'
 	import { delegateClick, dateToString, setID } from '@svar-ui/lib-dom'
-	import { Grid } from '@svar-ui/svelte-grid'
-
+	import {
+		Grid,
+		type ICellProps,
+		type IColumnConfig,
+	} from '@svar-ui/svelte-grid'
 	import Breadcrumbs from '../Breadcrumbs.svelte'
 	import NameCell from './NameCell.svelte'
 	import UploadDropArea from '../UploadDropArea.svelte'
+	import type {
+		IPanel,
+		IParsedEntity,
+		TActivePanel,
+		TSort,
+		TID,
+	} from '@svar-ui/filemanager-store/dist/types/types'
+	import type { DateFormatter } from '@types'
+	import type { IPublicWritable } from '@svar-ui/lib-state'
 
-	let { panel, active = false, onclick, oncontextmenu } = $props()
+	let {
+		panel,
+		active = false,
+		onclick,
+		oncontextmenu,
+	}: {
+		panel: TActivePanel
+		active?: boolean
+		onclick?: (e: Event) => void
+		oncontextmenu?: (e: Event) => void
+	} = $props()
 
-	const api = getContext('filemanager-store')
+	const api: IApi = getContext('filemanager-store')
 
-	const locale = getContext('wx-i18n')
-	const _ = locale.getGroup('filemanager')
-	const format = dateToString('%d %M %Y', locale.getRaw().calendar)
+	const locale: any = getContext('wx-i18n')
+	const _: any = locale.getGroup('filemanager')
+	const format: DateFormatter = dateToString(
+		'%d %M %Y',
+		locale.getRaw().calendar
+	)
 
-	let { panels } = api.getReactiveState()
+	let { panels }: { panels?: IPublicWritable<Partial<IPanel>[]> } =
+		api.getReactiveState()
 
-	const selection = $derived($panels[panel].selected)
-	const path = $derived($panels[panel].path)
-	const crumbs = $derived($panels[panel]._crumbs)
-	const sorts = $derived($panels[panel]._sorts)
-	const selectNavigation = $derived($panels[panel]._selectNavigation)
-	const files = $derived($panels[panel]._files)
+	const selection: string[] = $derived($panels[panel].selected)
+	const path: string = $derived($panels[panel].path)
+	const crumbs: IParsedEntity[] = $derived($panels[panel]._crumbs)
+	const sorts: { [key: string]: TSort } = $derived($panels[panel]._sorts)
+	const selectNavigation: boolean = $derived($panels[panel]._selectNavigation)
+	const files: IParsedEntity[] = $derived($panels[panel]._files)
 
-	const columns = [
+	const columns: IColumnConfig[] = [
 		{
 			id: 'name',
 			header: _('Name'),
 			flexgrow: 3,
 			sort: true,
 			resize: true,
-			cell: NameCell,
+			cell: NameCell as Component<ICellProps, object, keyof ICellProps | ''>,
 		},
 		{
 			id: 'size',
@@ -52,19 +79,21 @@
 		},
 	]
 
-	let sortClick = null
-	let resizeClick = null
+	let sortClick: boolean | null = null
+	let resizeClick: boolean | null = null
 
-	const tableSelection = $derived(
+	const tableSelection: string[] = $derived(
 		selectNavigation ? ['/wx-filemanager-parent-link'] : [...selection]
 	)
 
-	function click(id, e) {
+	function click(id: TID, e: Event): void {
 		//[FIXME] grip is wx-table classname which may change
-		if (e && e.target.className.indexOf('wx-grip') !== -1) return
+		if (e && (e.target as HTMLElement).className.indexOf('wx-grip') !== -1)
+			return
 
-		const ctrl = e && (e.ctrlKey || e.metaKey)
-		const shift = e && e.shiftKey
+		const ctrl: boolean =
+			e && ((e as KeyboardEvent).ctrlKey || (e as KeyboardEvent).metaKey)
+		const shift: boolean = e && (e as KeyboardEvent).shiftKey
 
 		if (id === '/wx-filemanager-parent-link') {
 			if (selection.length && (ctrl || shift)) return
@@ -74,8 +103,8 @@
 			return
 		}
 
-		const isFile = id !== 'body'
-		let newSelection = !isFile && e ? null : id
+		const isFile: boolean = id !== 'body'
+		let newSelection: string | null = !isFile && e ? null : id
 
 		if (!sortClick && !resizeClick) {
 			api.exec('select-file', {
@@ -87,7 +116,7 @@
 		} else sortClick = resizeClick = null
 	}
 
-	function backToParent() {
+	function backToParent(): void {
 		if (crumbs.length > 1) {
 			api.exec('set-path', {
 				id: crumbs[crumbs.length - 2].id,
@@ -97,7 +126,7 @@
 		}
 	}
 
-	function dblclick(id) {
+	function dblclick(id: TID): void {
 		if (id === '/wx-filemanager-parent-link') {
 			return backToParent()
 		}
@@ -117,10 +146,10 @@
 		}
 	}
 
-	function handleSort(e) {
-		const col = e.key
-		const prevSort = sorts[path]
-		let order = !prevSort ? 'desc' : 'asc'
+	function handleSort(e: { key: string }): void {
+		const col: string = e.key
+		const prevSort: TSort | undefined = sorts[path]
+		let order: TSort['order'] = !prevSort ? 'desc' : 'asc'
 
 		if (prevSort && prevSort.key === col) {
 			order = prevSort.order === 'asc' ? 'desc' : 'asc'
@@ -134,8 +163,8 @@
 		})
 	}
 
-	function initTable(api) {
-		api.intercept('sort-rows', e => {
+	function initTable(api: IApi): void {
+		api.intercept('sort-rows', (e: { key: string }) => {
 			sortClick = true
 			handleSort(e)
 			return false
@@ -148,30 +177,34 @@
 		api.intercept('hotkey', () => false)
 	}
 
-	let renderedFiles = $derived(
-		path !== '/'
-			? [
-					{
-						id: '/wx-filemanager-parent-link',
-						name: _('Back to parent folder'),
-					},
-					...files,
-				]
-			: files
-	)
+	let renderedFiles: IParsedEntity[] | { id: string; name: string }[] =
+		$derived(
+			path !== '/'
+				? [
+						{
+							id: '/wx-filemanager-parent-link',
+							name: _('Back to parent folder'),
+						},
+						...files,
+					]
+				: files
+		)
 
-	let sortMarks = $derived.by(() => {
-		if (renderedFiles && sorts[path]) {
-			const { key, order } = sorts[path]
-			return { [key]: { order } }
+	let sortMarks: { [key: string]: { order: TSort['order'] } } = $derived.by(
+		() => {
+			if (renderedFiles && sorts[path]) {
+				const { key, order }: { key: string; order: TSort['order'] } =
+					sorts[path]
+				return { [key]: { order } }
+			}
 		}
-	})
+	)
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div {onclick} {oncontextmenu} class="wx-wrapper">
-	<Breadcrumbs {panel} />
+	<Breadcrumbs panel={panel as never} />
 	<div
 		data-id={setID('body')}
 		class="wx-list"
@@ -180,7 +213,7 @@
 	>
 		<UploadDropArea>
 			<Grid
-				init={initTable}
+				init={() => initTable}
 				data={renderedFiles}
 				{columns}
 				selectedRows={tableSelection}

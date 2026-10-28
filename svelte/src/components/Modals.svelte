@@ -1,17 +1,29 @@
 <script lang="ts">
+	import type { IApi } from '@svar-ui/filemanager-store'
 	import { getContext, setContext } from 'svelte'
 	import { Globals, Modal, Text } from '@svar-ui/svelte-core'
+	import type {
+		IPanel,
+		TActivePanel,
+	} from '@svar-ui/filemanager-store/dist/types/types'
+	import type { IPublicWritable } from '@svar-ui/lib-state'
 
-	let { children } = $props()
+	let { children }: { children?: () => any } = $props()
 
-	const _ = getContext('wx-i18n').getGroup('filemanager')
-	const api = getContext('filemanager-store')
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
+	const api: IApi = getContext('filemanager-store')
 
-	const { panels: rPanels, activePanel: rActivePanel } = api.getReactiveState()
+	const {
+		panels: rPanels,
+		activePanel: rActivePanel,
+	}: {
+		panels?: IPublicWritable<Partial<IPanel>[]>
+		activePanel?: IPublicWritable<TActivePanel>
+	} = api.getReactiveState()
 
-	const path = $derived($rPanels[$rActivePanel].path)
-	let prompt = $state(null)
-	let confirm = $state(null)
+	const path: string = $derived($rPanels[$rActivePanel].path)
+	let prompt: { item: any; add?: boolean } | null = $state(null)
+	let confirm: { selected: string[] } | null = $state(null)
 	let value: string = $state('')
 	let initialName: string = $state('')
 	let error: boolean = $state(false)
@@ -39,18 +51,18 @@
 		closePrompt()
 	}
 
-	function closePrompt() {
+	function closePrompt(): void {
 		prompt = error = null
 		initialName = value = ''
 	}
 
-	function confirmOk() {
+	function confirmOk(): void {
 		api.exec('delete-files', { ids: confirm.selected })
 		confirm = null
 	}
 
 	setContext('filemanager-modals', {
-		showPrompt(config) {
+		showPrompt(config: { item: any; add?: boolean }) {
 			initialName = value =
 				config.item.name ||
 				(config.item.type === 'folder'
@@ -58,7 +70,7 @@
 					: `${_('New file')}.txt`)
 			prompt = { ...config }
 		},
-		showConfirm(config) {
+		showConfirm(config: { selected: string[] }) {
 			confirm = { ...config }
 		},
 	})

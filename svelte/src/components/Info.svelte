@@ -1,62 +1,94 @@
-<script>
+<script lang="ts">
+	import type { IApi } from '@svar-ui/filemanager-store'
 	import { getContext } from 'svelte'
 	import { dateToString } from '@svar-ui/lib-dom'
 	import { formatSize } from '@svar-ui/filemanager-store'
 	import Icon from './ui/Icon.svelte'
+	import type { IPublicWritable } from '@svar-ui/lib-state'
+	import type {
+		IPanel,
+		IParsedEntity,
+		TActivePanel,
+	} from '@svar-ui/filemanager-store/dist/types/types'
+	import type { DateFormatter } from '@types'
 
-	const { preview, icon } = getContext('filemanager-store').templates
+	const { preview, icon }: { preview: any; icon: any } = (
+		getContext('filemanager-store') as any
+	).templates
 
-	const api = getContext('filemanager-store')
+	const api: IApi = getContext('filemanager-store')
 
-	let { narrowMode, extraInfo } = $props()
+	let { narrowMode, extraInfo }: { narrowMode: boolean; extraInfo: any } =
+		$props()
 
 	let {
 		panels,
 		activePanel,
 		preview: rPreview,
 		search,
+	}: {
+		panels?: IPublicWritable<Partial<IPanel>[]>
+		activePanel?: IPublicWritable<TActivePanel>
+		preview?: IPublicWritable<boolean>
+		search: IPublicWritable<string>
 	} = api.getReactiveState()
 
-	const locale = getContext('wx-i18n')
-	const _ = locale.getGroup('filemanager')
-	const format = dateToString('%D, %d %F %Y, %H:%i', locale.getRaw().calendar)
+	const locale: any = getContext('wx-i18n') as any
+	const _: any = locale.getGroup('filemanager')
 
-	const found = $derived($search && !$panels[$activePanel]._selected.length)
-	const items = $derived(
+	const format: DateFormatter = dateToString(
+		'%D, %d %F %Y, %H:%i',
+		locale.getRaw().calendar
+	)
+
+	const found: boolean = $derived(
+		$search && !$panels[$activePanel]._selected.length
+	)
+	const items: IParsedEntity[] = $derived(
 		found ? $panels[$activePanel]._files : $panels[$activePanel]._selected
 	)
 
-	function downloadFile() {
+	function downloadFile(): void {
 		api.exec('download-file', {
 			id: items[0].id,
 		})
 	}
 
-	function getTotalCount(folders, files) {
+	function getTotalCount(folders: number, files: number): string {
 		return (
 			(folders ? `${folders} ${_(folders > 1 ? 'folders' : 'folder')} ` : '') +
 			(files ? `${files} ${_(files > 1 ? 'files' : 'file')}` : '')
 		)
 	}
 
-	function closePreview() {
+	function closePreview(): void {
 		api.exec('show-preview', { mode: !$rPreview })
 	}
 
-	function getItemType(item) {
+	function getItemType(item: IParsedEntity): string {
 		return item.type === 'folder' ? _('Folder') : item.ext || _('Unknown file')
 	}
 
-	const basic = $derived.by(() => {
-		let name,
-			item,
-			previewSrc,
-			iconSrc,
-			iconComp,
-			showDownloadIcon,
-			type,
-			totalCount,
-			totalSize
+	const basic: {
+		name: string
+		item: IParsedEntity | null
+		previewSrc: string | null
+		iconSrc: string | null
+		iconComp: any
+		showDownloadIcon: boolean
+		type: string | undefined
+		totalCount: string | undefined
+		totalSize: number | undefined
+	} = $derived.by(() => {
+		let name: string,
+			item: IParsedEntity | null,
+			previewSrc: string | null,
+			iconSrc: string | null,
+			iconComp: any,
+			showDownloadIcon: boolean,
+			type: string | undefined,
+			totalCount: string | undefined,
+			totalSize: number | undefined
 
 		if (items.length === 1 && !found) {
 			item = items[0]
@@ -76,26 +108,26 @@
 			item = showDownloadIcon = null
 			name = ''
 			if (items.length) {
-				let sum = 0
-				let folders = 0
-				let files = 0
-				let extArr = []
-				let incorrectSize
-				items.forEach(item => {
+				let sum: number = 0
+				let folders: number = 0
+				let files: number = 0
+				let extArr: string[] = []
+				let incorrectSize: boolean = false
+				items.forEach((item: IParsedEntity) => {
 					if (typeof item.size === 'undefined') {
 						incorrectSize = true
 						sum = undefined
 					}
 
 					if (!incorrectSize) {
-						sum += item.size
+						sum += item.size as number
 					}
 
 					extArr.push(getItemType(item))
 					item.type === 'folder' ? folders++ : files++
 				})
 
-				const singleExt = new Set(extArr)
+				const singleExt: Set<string> = new Set(extArr)
 				type = singleExt.size > 1 ? _('multiple') : [...singleExt][0]
 				totalCount = getTotalCount(folders, files)
 				totalSize = sum
@@ -129,17 +161,21 @@
 		}
 	})
 
-	async function getExtraInfo(item) {
+	async function getExtraInfo(
+		item: IParsedEntity | null
+	): Promise<Record<string, string> | null> {
 		if (!extraInfo || !item) return null
 		try {
 			return await extraInfo(item)
-		} catch (e) {
+		} catch (e: unknown) {
 			console.log(e)
 			return null
 		}
 	}
 
-	const info = $derived(getExtraInfo(basic.item))
+	const info: Promise<Record<string, string>> | null = $derived(
+		getExtraInfo(basic.item)
+	)
 </script>
 
 <div class="wx-wrapper">

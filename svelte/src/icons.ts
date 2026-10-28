@@ -1,4 +1,4 @@
-export let whitelist = {
+export default {
 	py: true,
 	'7z': true,
 	rar: true,
@@ -38,4 +38,4 @@ export let whitelist = {
 	multiple: true,
 	search: true,
 	none: true,
-}
+} as Record<string, boolean>

@@ -1,16 +1,19 @@
-<script>
+<script lang="ts">
+	import type { IApi } from '@svar-ui/filemanager-store'
 	import { getContext } from 'svelte'
-
+	import type { IPublicWritable } from '@svar-ui/lib-state'
 	import Breadcrumbs from '../Breadcrumbs.svelte'
 	import Panel from './Panel.svelte'
 	import UploadDropArea from '../UploadDropArea.svelte'
+	import type { TActivePanel } from '@svar-ui/filemanager-store/dist/types/types'
 
-	const api = getContext('filemanager-store')
-	const { activePanel } = api.getReactiveState()
+	const api: IApi = getContext('filemanager-store')
+	const { activePanel }: { activePanel?: IPublicWritable<TActivePanel> } =
+		api.getReactiveState()
 </script>
 
 <div class="wx-wrapper">
-	<Breadcrumbs panel={$activePanel} />
+	<Breadcrumbs panel={activePanel as never} />
 	<UploadDropArea>
 		<Panel />
 	</UploadDropArea>

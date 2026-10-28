@@ -1,34 +1,51 @@
-<script>
+<script lang="ts">
+	import type { IApi } from '@svar-ui/filemanager-store'
 	import { getContext } from 'svelte'
 	import { setID } from '@svar-ui/lib-dom'
+	import type { IPublicWritable } from '@svar-ui/lib-state'
+	import type {
+		IPanel,
+		TActivePanel,
+	} from '@svar-ui/filemanager-store/dist/types/types'
 
-	let { item } = $props()
+	let { item }: { item: any } = $props()
 
-	const api = getContext('filemanager-store')
-	const _ = getContext('wx-i18n').getGroup('filemanager')
-	const templates = getContext('filemanager-store').templates
+	const api: IApi = getContext('filemanager-store')
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
+	const templates: any = (getContext('filemanager-store') as any).templates
 
-	let { panels, activePanel, mode } = api.getReactiveState()
+	let {
+		panels,
+		activePanel,
+		mode,
+	}: {
+		panels?: IPublicWritable<Partial<IPanel>[]>
+		activePanel?: IPublicWritable<TActivePanel>
+		mode?: IPublicWritable<string>
+	} = api.getReactiveState()
 
-	const selection = $derived($panels[$activePanel].selected)
+	const selection: string[] = $derived($panels[$activePanel].selected)
 
-	let preview = $derived(templates.preview(item, 214, 163))
+	let preview: string | null = $derived(templates.preview(item, 214, 163))
 	// let icon = $derived(templates.icon(item, 'big'))
-	let Icon = $derived(templates.icon(item, 'big'))
-	let [nameStart, nameTail] = $derived(splitFileName(item.name))
+	let Icon: any = $derived(templates.icon(item, 'big'))
+	let [nameStart, nameTail]: [string, string] = $derived(
+		splitFileName(item.name)
+	)
 
-	function splitFileName(name) {
-		const MAX_TAIL_LENGTH = 10
-		const NO_EXT_TAIL_LENGTH = 5
+	function splitFileName(name: string): [string, string] {
+		const MAX_TAIL_LENGTH: number = 10
+		const NO_EXT_TAIL_LENGTH: number = 5
 
-		const lastDotIndex = name.lastIndexOf('.')
-		const hasExtension = lastDotIndex > 0 && lastDotIndex < name.length - 1
-		const tailLength = hasExtension
+		const lastDotIndex: number = name.lastIndexOf('.')
+		const hasExtension: boolean =
+			lastDotIndex > 0 && lastDotIndex < name.length - 1
+		const tailLength: number = hasExtension
 			? Math.min(MAX_TAIL_LENGTH, name.length - lastDotIndex)
 			: Math.min(NO_EXT_TAIL_LENGTH, name.length)
 
-		const nameStart = name.slice(0, -tailLength)
-		const nameTail = name.slice(-tailLength)
+		const nameStart: string = name.slice(0, -tailLength)
+		const nameTail: string = name.slice(-tailLength)
 
 		return [nameStart, nameTail]
 	}

@@ -1,22 +1,39 @@
-<script>
+<script lang="ts">
+	import type { IApi, TMode } from '@svar-ui/filemanager-store'
 	import { getContext } from 'svelte'
 	import { delegateClick, setID } from '@svar-ui/lib-dom'
 	import Item from './Item.svelte'
+	import type { IPublicWritable, TID } from '@svar-ui/lib-state'
+	import type {
+		IPanel,
+		TActivePanel,
+		IParsedEntity,
+	} from '@svar-ui/filemanager-store/dist/types/types'
 
-	const api = getContext('filemanager-store')
-	const _ = getContext('wx-i18n').getGroup('filemanager')
+	const api: IApi = getContext('filemanager-store')
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
 
-	let { panels, activePanel, mode } = api.getReactiveState()
+	let {
+		panels,
+		activePanel,
+		mode,
+	}: {
+		panels?: IPublicWritable<Partial<IPanel>[]>
+		activePanel?: IPublicWritable<TActivePanel>
+		mode?: IPublicWritable<TMode>
+	} = api.getReactiveState()
 
-	const files = $derived($panels[$activePanel]._files)
-	const selected = $derived($panels[$activePanel].selected)
-	const path = $derived($panels[$activePanel].path)
-	const crumbs = $derived($panels[$activePanel]._crumbs)
-	const selectNavigation = $derived($panels[$activePanel]._selectNavigation)
+	const files: IParsedEntity[] = $derived($panels[$activePanel]._files)
+	const selected: string[] | null = $derived($panels[$activePanel].selected)
+	const path: string = $derived($panels[$activePanel].path)
+	const crumbs: IParsedEntity[] = $derived($panels[$activePanel]._crumbs)
+	const selectNavigation: boolean = $derived(
+		$panels[$activePanel]._selectNavigation
+	)
 
-	function click(id, e) {
-		const ctrl = e && (e.ctrlKey || e.metaKey)
-		const shift = e && e.shiftKey
+	function click(id: TID, e: KeyboardEvent | MouseEvent): void {
+		const ctrl: boolean = e && (e.ctrlKey || e.metaKey)
+		const shift: boolean = e && e.shiftKey
 
 		if (id === '/wx-filemanager-parent-link') {
 			if (selected.length && (ctrl || shift)) return
@@ -26,21 +43,21 @@
 			return
 		}
 
-		const isFile = id !== 'body'
-		let newSelection = !isFile && e ? null : id
+		const isFile: boolean = id !== 'body'
+		let newSelection: TID | null = !isFile && e ? null : id
 
-		const actionClick =
-			e.target.className.indexOf('wx-more') !== -1 ||
-			e.target.className.indexOf('wxi-dots-v') !== -1
+		const actionClick: boolean =
+			(e.target as HTMLElement).className.indexOf('wx-more') !== -1 ||
+			(e.target as HTMLElement).className.indexOf('wxi-dots-v') !== -1
 
 		api.exec('select-file', {
-			id: newSelection,
+			id: newSelection?.toString(),
 			toggle: ctrl && !actionClick,
 			range: shift && !actionClick,
 			panel: $activePanel,
 		})
 	}
-	function backToParent() {
+	function backToParent(): void {
 		if (crumbs.length > 1) {
 			api.exec('set-path', {
 				id: crumbs[crumbs.length - 2].id,
@@ -49,7 +66,7 @@
 			})
 		}
 	}
-	function dblclick(id) {
+	function dblclick(id: TID): void {
 		if (id === '/wx-filemanager-parent-link') {
 			return backToParent()
 		}
@@ -60,7 +77,7 @@
 			})
 		}
 
-		const item = files.find(a => a.id === id)
+		const item: IParsedEntity | undefined = files.find(a => a.id === id)
 
 		if (item) {
 			if (item.type == 'folder') {
@@ -76,13 +93,23 @@
 		}
 	}
 
-	function applySelection(id, ev) {
-		if (!selected?.length || !selected.filter(i => i?.id === id).length > 0) {
+	function applySelection(id: TID, ev: KeyboardEvent | MouseEvent): void {
+		if (
+			!selected?.length ||
+			!selected.filter((i: string) => i![id] === id).length
+		) {
 			click(id, ev)
 		}
 	}
 
-	let renderedFiles = $derived(
+	let renderedFiles: (
+		| IParsedEntity
+		| {
+				id?: string
+				name: any
+				navigation: boolean
+		  }
+	)[] = $derived(
 		path !== '/'
 			? [
 					{

@@ -1,12 +1,13 @@
-<script>
+<script lang="ts">
+	import type { IRow } from '@svar-ui/svelte-grid'
 	import { getContext } from 'svelte'
 
-	let { row } = $props()
+	let { row }: { row: IRow } = $props()
 
-	const _ = getContext('wx-i18n').getGroup('filemanager')
-	const templates = getContext('filemanager-store').templates
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
+	const templates: any = (getContext('filemanager-store') as any).templates
 
-	const Icon = $derived(templates.icon(row, 'small'))
+	const Icon: any = $derived(templates.icon(row, 'small'))
 </script>
 
 <div class="wx-name-cell">
