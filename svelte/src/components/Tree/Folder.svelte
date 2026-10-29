@@ -10,6 +10,8 @@
 		TActivePanel,
 	} from '@svar-ui/filemanager-store/dist/types/types'
 
+	import FolderIcon from '@lucide/svelte/icons/folder'
+
 	const api: IApi = getContext('filemanager-store')
 	const {
 		panels,
@@ -21,17 +23,18 @@
 
 	let path: string | null = $derived($panels[$activePanel].path)
 
-	let {
-		folderIcon = false,
-		folder = {} as IParsedEntity,
-	}: { folderIcon?: string | boolean; folder?: IParsedEntity } = $props()
+	let { folder }: { folder?: IParsedEntity } = $props()
 
-	const _ = (getContext('wx-i18n') as any).getGroup('filemanager')
+	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
 
-	const hasFolders = $derived(!!folder.data?.find(i => i.type === 'folder'))
-	const name = $derived(folder.id == '/' ? _(folder.name) : folder.name)
-	const padding = $derived(folder.$level > 1 ? (folder.$level - 1) * 20 : 0)
-	const open = $derived(folder.open)
+	const hasFolders: boolean = $derived(
+		!!folder.data?.find(i => i.type === 'folder')
+	)
+	const name: string = $derived(folder.id == '/' ? _(folder.name) : folder.name)
+	const padding: number = $derived(
+		folder.$level > 1 ? (folder.$level - 1) * 20 : 0
+	)
+	const open: boolean = $derived(folder.open)
 </script>
 
 <li
@@ -46,7 +49,7 @@
 			data-action="toggle"
 		></i>
 	{:else}<span class="wx-toggle-placeholder"></span>{/if}
-	<i class={typeof folderIcon === 'string' ? folderIcon : 'wxi-folder'}></i>
+	<FolderIcon class="wxi-folder" size={20} />
 	<span class="wx-name"> {name} </span>
 </li>
 
@@ -83,8 +86,8 @@
 	.wx-toggle {
 		cursor: pointer;
 		color: var(--wx-icon-color);
-		font-size: 24px;
-		margin-right: -2px;
+		font-size: 20px;
+		margin-right: 0px;
 	}
 	.wx-toggle-placeholder {
 		width: 23px;
@@ -92,5 +95,6 @@
 	}
 	.wx-name {
 		padding-right: 8px;
+		padding-left: 4px;
 	}
 </style>
