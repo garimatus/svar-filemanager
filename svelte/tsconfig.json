@@ -21,6 +21,7 @@
 		"declaration": false,
 
 		"paths": {
+			"@src": ["./src"],
 			"@types": ["./src/types"]
 		}
 	},

@@ -10,6 +10,7 @@ import type {
 	IExtraInfo,
 	IParsedEntity,
 } from '@svar-ui/filemanager-store'
+import type { LucideProps } from '@lucide/svelte/icons'
 
 export * from '@svar-ui/filemanager-store'
 
@@ -88,3 +89,11 @@ export type FilemanagerActions<TMethodsConfig extends Record<string, any>> = {
 }
 
 export type DateFormatter = (date: Date) => string
+
+export type ModeOption = {
+	id: string | number
+	label: string
+	icon: Component<LucideProps>
+	title?: string
+	tooltip?: string
+}

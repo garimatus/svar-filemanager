@@ -6,6 +6,13 @@
 	import Icon from './ui/Icon.svelte'
 	import type { IApi, TMode } from '@svar-ui/filemanager-store'
 	import type { IPublicWritable } from '@svar-ui/lib-state'
+	import {
+		Table,
+		PlayingCardsFan,
+		TableColumnsSplit,
+		View,
+	} from '@lucide/svelte/icons'
+	import type { ModeOption } from '@types'
 
 	let {
 		narrowMode = false,
@@ -26,16 +33,14 @@
 
 	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
 
-	const options: {
-		id: string | number
-		label: string
-		icon?: string
-		title?: string
-		tooltip?: string
-	}[] = [
-		{ icon: 'wxi-view-sequential', id: 'table', label: _('Table') },
-		{ icon: 'wxi-view-grid', id: 'cards', label: _('Cards') },
-		{ icon: 'wxi-view-column', id: 'panels', label: _('Panels') },
+	const options: ModeOption[] = [
+		{ icon: Table, id: 'table', label: _('Table') },
+		{
+			icon: TableColumnsSplit,
+			id: 'panels',
+			label: _('Panels'),
+		},
+		{ icon: PlayingCardsFan, id: 'cards', label: _('Cards') },
 	]
 
 	function changeMode({ value }: { value: TMode }): void {
@@ -50,6 +55,11 @@
 	}
 </script>
 
+{#snippet modeOption({ option }: { option: ModeOption })}
+	<option.icon size={22} />
+	<span class="wx-mode-label">{option.label}</span>
+{/snippet}
+
 <div class="wx-toolbar">
 	<div class="wx-left {narrowMode ? 'wx-left-narrow' : ''}">
 		{#if !narrowMode}
@@ -63,16 +73,19 @@
 	</div>
 
 	<div class="wx-right">
-		{#if !narrowMode}
-			<div class="wx-preview-icon">
-				<TwoState onclick={toggleInfo} value={$info}>
-					<i class="wxi-eye"></i>
-				</TwoState>
-			</div>
-		{/if}
 		<div class="wx-modes">
-			<Segmented value={$mode} {options} onchange={changeMode} />
+			<Segmented
+				value={$mode}
+				options={options as never}
+				children={modeOption as never}
+				onchange={changeMode}
+			/>
 		</div>
+		{#if !narrowMode}
+			<TwoState onclick={toggleInfo} value={$info}>
+				<View size={22} />
+			</TwoState>
+		{/if}
 	</div>
 </div>
 
@@ -112,11 +125,15 @@
 		margin-right: 20px;
 	}
 
-	/* .wx-preview-icon {
+	.wx-mode-label {
+		margin-left: 4px;
+	}
+
+	/*.wx-preview-icon {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		margin-right: 20px;
+		margin-left: 20px;
 
 		--wx-button-icon-size: 22px;
 		--wx-button-line-height: 25px;
