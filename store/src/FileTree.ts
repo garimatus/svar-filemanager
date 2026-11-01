@@ -111,7 +111,7 @@ export default class FileTree extends DataTree<IParsedEntity> {
 		const temp = this.byId(id)
 		if (!temp) return null
 
-		temp.data?.forEach(item => {
+		temp.data?.forEach((item: IParsedEntity) => {
 			const { id, date, type, size, lazy } = item
 			const serializedItem: IEntity = {
 				id,

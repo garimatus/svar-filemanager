@@ -22,6 +22,7 @@ export interface IMenuOption {
 	icon?: string
 	comp?: string
 	type?: string // fallback to [deprecated] prop
+	handler?: (ev: { context: IParsedEntity | null }) => void
 }
 
 export interface IExtraInfo {
@@ -129,4 +130,18 @@ export interface IApi {
 	getStores: () => { data: DataStore }
 	getFile: (id: TID) => IParsedEntity | null
 	serialize: (id: TID) => IEntity[] | null
+}
+
+export interface IHotkeysConfig {
+	api: IApi
+	menuOptions: (
+		mode?: string,
+		item?: IParsedEntity | null
+	) => IMenuOption[] | null
+	performAction: (
+		action: string,
+		context?: IParsedEntity | null,
+		inTree?: boolean
+	) => void
+	getPanel: () => Partial<IPanel>
 }

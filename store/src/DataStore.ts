@@ -407,7 +407,11 @@ export class DataStore extends Store<IData> {
 		const { data } = this.getState()
 		return data.serialize(id)
 	}
-	_updatePanels(update: Partial<IPanel>[], changes: any, move?: boolean) {
+	_updatePanels(
+		update: Partial<IPanel>[],
+		changes: Record<string, TID>,
+		move?: boolean
+	) {
 		const { data } = this.getState()
 
 		// if files are moved, we should not replace references to them, just remove
@@ -421,11 +425,11 @@ export class DataStore extends Store<IData> {
 
 			if (!data.byId(panel._lastSelected!))
 				panel._lastSelected = move
-					? null
-					: changes[panel._lastSelected!] || null
+					? undefined
+					: changes[panel._lastSelected!] || undefined
 
-			const sort: { [key: TID]: TSort } = {}
-			Object.keys(panel._sorts!).forEach((id: TID) => {
+			const sort: Record<string, TSort> = {}
+			Object.keys(panel._sorts!).forEach((id: string) => {
 				if (data.byId(id)) sort[id] = panel._sorts![id]
 				else if (changes[id] && !move) sort[changes[id]] = panel._sorts![id]
 			})

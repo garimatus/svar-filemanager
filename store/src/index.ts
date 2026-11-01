@@ -15,4 +15,5 @@ export type {
 	IExtraInfo,
 	IConfig,
 	TContextMenuType,
+	IHotkeysConfig,
 } from './types'

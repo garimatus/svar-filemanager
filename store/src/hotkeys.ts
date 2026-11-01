@@ -1,33 +1,48 @@
 import { locateAttr } from '@svar-ui/lib-dom'
 
-import type { TID, IParsedEntity } from './types'
+import type {
+	TID,
+	TActivePanel,
+	IPanel,
+	IParsedEntity,
+	IMenuOption,
+	IHotkeysConfig,
+} from './types'
 import { getParentPath, getSelectionOnNavigation } from './helpers'
 
-export function hotkeys(node: HTMLElement, config: any) {
-	const { api } = config
+export function hotkeys(
+	node: HTMLElement,
+	config: IHotkeysConfig
+): { destroy: () => void } {
+	const { api }: { api: IHotkeysConfig['api'] } = config
 
-	function handleHotkey(hotkey: string, e: KeyboardEvent) {
-		const panel = config.getPanel()
-		const selected = panel.selected
+	function handleHotkey(hotkey: string, e: KeyboardEvent): void {
+		const panel: IPanel = config.getPanel() as IPanel
+		const selected: TID[] = panel.selected ?? []
 
-		const ctrl = e.ctrlKey || e.metaKey
-		const shift = e.shiftKey
+		const ctrl: boolean = e.ctrlKey || e.metaKey
+		const shift: boolean = e.shiftKey
 
-		let options
-		const item = selected?.[0] ? api.getFile(selected[0]) : null
-		if (selected?.length) {
-			if (selected.length > 1) options = config.menuOptions('multiselect')
-			else options = config.menuOptions(item.type, item)
+		let options: IMenuOption[] = []
+		const item: IParsedEntity | null = selected[0]
+			? ((api.getFile(selected[0]) as IParsedEntity | undefined) ?? null)
+			: null
+
+		if (selected.length > 0) {
+			if (selected.length > 1) options = config.menuOptions('multiselect') ?? []
+			else options = config.menuOptions(item?.type, item) ?? []
 		} else {
-			options = config.menuOptions('body')
+			options = config.menuOptions('body') ?? []
 		}
-		const hotkeys = `${ctrl ? 'ctrl+' : ''}${shift ? 'shift+' : ''}${hotkey}`
-		const option = options
-			? options.find((o: any) => o.hotkey?.toLowerCase() === hotkeys)
-			: false
-		const action = config.performAction
+
+		const hotkeysCombo: string = `${ctrl ? 'ctrl+' : ''}${shift ? 'shift+' : ''}${hotkey}`
+		const option: IMenuOption | undefined = options.find(
+			(o: IMenuOption) => o.hotkey?.toLowerCase() === hotkeysCombo
+		)
+		const action: IHotkeysConfig['performAction'] = config.performAction
+
 		if (option) {
-			switch (hotkeys) {
+			switch (hotkeysCombo) {
 				case 'ctrl+c':
 					action('copy')
 					break
@@ -59,20 +74,25 @@ export function hotkeys(node: HTMLElement, config: any) {
 				const { _crumbs: crumbs, _selectNavigation: selectNavigation } = panel
 
 				if (selectNavigation) {
-					const path = getParentPath(crumbs)
+					const path: TID | null = getParentPath(crumbs)
 					if (path) {
-						const selection = getSelectionOnNavigation(path, crumbs)
+						const selection: TID | null = getSelectionOnNavigation(path, crumbs)
 						api.exec('set-path', {
 							id: path,
-							selected: [selection],
+							...(selection ? { selected: [selection] } : {}),
 						})
 					}
 				} else if (selected.length === 1) {
-					const item = api.getFile(selected[0])
-					if (item) {
-						api.exec(item.type === 'folder' ? 'set-path' : 'open-file', {
-							id: item.id,
-						})
+					const selectedItem: IParsedEntity | undefined = api.getFile(
+						selected[0]
+					) as IParsedEntity | undefined
+					if (selectedItem) {
+						api.exec(
+							selectedItem.type === 'folder' ? 'set-path' : 'open-file',
+							{
+								id: selectedItem.id,
+							}
+						)
 					}
 				}
 				break
@@ -87,15 +107,16 @@ export function hotkeys(node: HTMLElement, config: any) {
 					_selectNavigation: selectNavigation,
 				} = panel
 
-				let nextId: TID | undefined = undefined
+				let nextId: TID | undefined
 
-				if (selectedFiles.length) {
-					const start = selectedFiles.at(0).id
-					const currentIndex = files.findIndex(
+				if (selectedFiles.length > 0) {
+					const start: TID | undefined = selectedFiles.at(0)?.id
+					const currentIndex: number = files.findIndex(
 						(file: IParsedEntity) => file.id === start
 					)
+
 					if (currentIndex !== -1) {
-						const next = currentIndex - 1
+						const next: number = currentIndex - 1
 						if (files[next]) nextId = files[next].id
 						else if (path !== '/' && !(ctrl || shift)) {
 							api.exec('select-file', { type: 'navigation' })
@@ -110,12 +131,13 @@ export function hotkeys(node: HTMLElement, config: any) {
 					nextId = files.at(0)?.id
 				}
 
-				if (nextId)
+				if (nextId) {
 					api.exec('select-file', {
 						id: nextId,
 						toggle: ctrl,
 						range: shift,
 					})
+				}
 				break
 			}
 
@@ -128,15 +150,15 @@ export function hotkeys(node: HTMLElement, config: any) {
 					_selectNavigation: selectNavigation,
 				} = panel
 
-				let nextId: TID | undefined = undefined
+				let nextId: TID | undefined
 
-				if (selectedFiles.length) {
-					const start = selectedFiles.at(-1).id
-					const currentIndex = files.findIndex(
+				if (selectedFiles.length > 0) {
+					const start: TID | undefined = selectedFiles.at(-1)?.id
+					const currentIndex: number = files.findIndex(
 						(file: IParsedEntity) => file.id === start
 					)
 					if (currentIndex !== -1) {
-						const next = currentIndex + 1
+						const next: number = currentIndex + 1
 						if (files[next]) nextId = files[next].id
 					}
 				} else {
@@ -159,20 +181,25 @@ export function hotkeys(node: HTMLElement, config: any) {
 		}
 	}
 
-	function handleKeydown(e: any) {
-		const code = e.code.replace('Key', '').toLowerCase()
+	function handleKeydown(e: KeyboardEvent): void {
+		const code: string = e.code.replace('Key', '').toLowerCase()
 		handleHotkey(code, e)
 
-		//tracking active panel
-		if (code == 'tab')
-			setTimeout(() => {
-				const active = document.activeElement
-				if (active && active.className.indexOf('table') != -1) {
-					api.exec('set-active-panel', {
-						panel: +locateAttr(active, 'data-panel'),
-					})
-				}
+		// tracking active panel
+		if (code === 'tab') {
+			setTimeout((): void => {
+				const active: Element | null = document.activeElement
+				if (!(active instanceof HTMLElement)) return
+				if (!active.className.includes('table')) return
+
+				const panelAttr: string | null = locateAttr(active, 'data-panel')
+				if (!panelAttr) return
+
+				api.exec('set-active-panel', {
+					panel: Number(panelAttr) as TActivePanel,
+				})
 			})
+		}
 	}
 
 	node.addEventListener('keydown', handleKeydown)
