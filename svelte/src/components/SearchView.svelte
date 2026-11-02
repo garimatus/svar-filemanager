@@ -2,7 +2,7 @@
 	import type { IApi } from '@svar-ui/filemanager-store'
 	import { getContext } from 'svelte'
 	import Panel from './Cards/Panel.svelte'
-	import Icon from './ui/Icon.svelte'
+	import IconWrapper from './ui/IconWrapper.svelte'
 	import type { IPublicWritable } from '@svar-ui/lib-state'
 	import type {
 		IPanel,
@@ -31,7 +31,7 @@
 <div class="wx-search">
 	<div class="wx-toolbar">
 		<div class="wx-back-icon">
-			<Icon name="angle-left" onclick={clearSearch} />
+			<IconWrapper name="angle-left" onclick={clearSearch} />
 		</div>
 		<div class="wx-text">
 			{_('Search results in')}

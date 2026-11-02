@@ -3,7 +3,7 @@
 	import { Segmented, TwoState } from '@svar-ui/svelte-core'
 	import { setID } from '@svar-ui/lib-dom'
 	import Search from './ui/Search.svelte'
-	import Icon from './ui/Icon.svelte'
+	import IconWrapper from './ui/IconWrapper.svelte'
 	import type { IApi, TMode } from '@svar-ui/filemanager-store'
 	import type { IPublicWritable } from '@svar-ui/lib-state'
 	import {
@@ -66,7 +66,10 @@
 			<div class="wx-name">{_('Files')}</div>
 		{:else if !($mode == 'panels' || $mode == 'search')}
 			<div class="wx-sidebar-icon" data-id={setID('toggle-tree')}>
-				<Icon onclick={() => onshowtree && onshowtree()} name={'subtask'} />
+				<IconWrapper
+					onclick={() => onshowtree && onshowtree()}
+					name={'subtask'}
+				/>
 			</div>
 		{/if}
 		<Search onsearch={search as never} value={$searchValue as never} />

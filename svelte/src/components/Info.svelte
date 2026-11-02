@@ -3,7 +3,7 @@
 	import { getContext } from 'svelte'
 	import { dateToString } from '@svar-ui/lib-dom'
 	import { formatSize } from '@svar-ui/filemanager-store'
-	import Icon from './ui/Icon.svelte'
+	import IconWrapper from './ui/IconWrapper.svelte'
 	import type { IPublicWritable } from '@svar-ui/lib-state'
 	import type {
 		IPanel,
@@ -185,10 +185,10 @@
 				<div class="wx-name">{basic.name}</div>
 				<div class="wx-icons">
 					{#if basic.showDownloadIcon}
-						<Icon name="download" onclick={downloadFile} />
+						<IconWrapper name="download" onclick={downloadFile} />
 					{/if}
 					{#if narrowMode}
-						<Icon name="close" onclick={closePreview} />
+						<IconWrapper name="close" onclick={closePreview} />
 					{/if}
 				</div>
 			</div>
@@ -250,7 +250,7 @@
 				<div class="wx-name">{basic.name}</div>
 				<div class="wx-icons">
 					{#if narrowMode}
-						<Icon name="close" onclick={closePreview} />
+						<IconWrapper name="close" onclick={closePreview} />
 					{/if}
 				</div>
 			</div>

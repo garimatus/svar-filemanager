@@ -6,7 +6,7 @@
 		name,
 		spin = false,
 		onclick,
-		icon: IconComponent,
+		icon: Icon,
 		...iconProps
 	}: {
 		name?: string
@@ -20,15 +20,15 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <i
 	data-menu-ignore="true"
-	class="wx-icon {IconComponent ? null : 'wxi-' + name}
+	class="wx-icon {Icon ? null : 'wxi-' + name}
 	{spin ? 'wx-spin' : ''} 
 	{onclick ? 'wx-clickable' : ''}"
 	onclick={() => {
 		onclick && onclick()
 	}}
 >
-	{#if IconComponent}
-		<IconComponent {...iconProps} />
+	{#if Icon}
+		<Icon {...iconProps} />
 	{:else}{null}{/if}</i
 >
 

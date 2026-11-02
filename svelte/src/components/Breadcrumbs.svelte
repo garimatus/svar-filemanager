@@ -3,14 +3,14 @@
 	import { getContext } from 'svelte'
 	import { delegateClick, setID } from '@svar-ui/lib-dom'
 	import { getSelectionOnNavigation } from '@svar-ui/filemanager-store'
-	import Icon from './ui/Icon.svelte'
+	import IconWrapper from './ui/IconWrapper.svelte'
 	import type { IPublicWritable } from '@svar-ui/lib-state'
 	import type {
 		TActivePanel,
 		IPanel,
 		TID,
 	} from '@svar-ui/filemanager-store/dist/types/types'
-	import { RefreshCcw } from '@lucide/svelte'
+	import { RefreshCcw, ChevronRight } from '@lucide/svelte'
 
 	let { panel }: { panel?: TActivePanel } = $props()
 
@@ -54,11 +54,11 @@
 	data-menu-ignore="true"
 >
 	<div class="wx-refresh-icon">
-		<Icon spin={!!loading} onclick={refresh} icon={RefreshCcw} size={22} />
+		<IconWrapper icon={RefreshCcw} spin={!!loading} onclick={refresh} />
 	</div>
 	{#each crumbs as crumb, i}
 		{#if i}
-			<Icon name="angle-right" />
+			<IconWrapper icon={ChevronRight} />
 		{/if}
 		<div class="wx-item" data-id={setID(crumb.id)} data-menu-ignore="true">
 			{crumb.id == '/' ? _(crumb.name) : crumb.name}
