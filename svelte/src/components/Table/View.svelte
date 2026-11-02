@@ -204,7 +204,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div {onclick} {oncontextmenu} class="wx-wrapper">
-	<Breadcrumbs panel={panel as never} />
+	<Breadcrumbs {panel} />
 	<div
 		data-id={setID('body')}
 		class="wx-list"
