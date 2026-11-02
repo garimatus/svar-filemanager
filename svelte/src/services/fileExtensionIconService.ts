@@ -13,7 +13,7 @@ import Files from '@lucide/svelte/icons/files'
 import Search from '@lucide/svelte/icons/search'
 import type { LucideProps } from '@lucide/svelte/icons'
 import type { IParsedEntity } from '@svar-ui/filemanager-store'
-import whitelist from '../icons'
+import whiteList from '../fileExtensionWhiteList'
 
 // maps a whitelisted type/extension to the lucide icon that represents it,
 // mirroring the categories the old CDN-based icon service exposed
@@ -69,19 +69,18 @@ const iconMap: Record<string, Component<LucideProps>> = {
 
 export default function iconService(
 	file: IParsedEntity
-	// size: 'big' | 'small'
 ): Component<LucideProps> {
-	const { type, ext } = file
+	const { type, ext }: { type?: string; ext?: string } = file
 
 	if (!type && !ext) return FileQuestionMark
 
-	let icon: string = 'unknown'
+	let name: string = 'unknown'
 
-	if (type && type !== 'file' && whitelist[type as keyof typeof whitelist]) {
-		icon = type
+	if (type && type !== 'file' && whiteList[type as keyof typeof whiteList]) {
+		name = type
 	} else if (ext) {
-		icon = whitelist[ext as keyof typeof whitelist] ? ext : 'file'
+		name = whiteList[ext as keyof typeof whiteList] ? ext : 'file'
 	}
 
-	return iconMap[icon] ?? FileQuestionMark
+	return iconMap[name] ?? FileQuestionMark
 }

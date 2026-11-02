@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { setContext } from 'svelte'
+	import { setContext, type Component } from 'svelte'
 
 	import Layout from './Layout.svelte'
 
@@ -11,7 +11,6 @@
 	import { DataStore, getMenuOptions } from '@svar-ui/filemanager-store'
 	import type { DataStore as DataStoreType } from '@svar-ui/filemanager-store'
 	import Modals from './Modals.svelte'
-	// import { whitelist } from '../icons'
 	import type {
 		IDrive,
 		IParsedEntity,
@@ -20,8 +19,9 @@
 		IMenuOption,
 		IPanel,
 	} from '@svar-ui/filemanager-store/dist/types/types'
-	import iconService from '../services/iconService'
+	import fileExtensionIconService from '../services/fileExtensionIconService'
 	import type { IApi } from '@svar-ui/filemanager-store'
+	import type { LucideProps } from '@lucide/svelte'
 
 	let {
 		data = [],
@@ -34,25 +34,7 @@
 		menuOptions = getMenuOptions,
 		extraInfo = null,
 		init = null,
-		// icons = function (file, size) {
-		// 	const { type, ext } = file
-
-		// 	if (type === 'folder') return false
-
-		// 	let icon
-
-		// 	if (type && type !== 'file' && whitelist[type]) {
-		// 		icon = type
-		// 	} else if (ext) {
-		// 		icon = whitelist[ext] ? ext : 'file'
-		// 	} else icon = 'unknown'
-
-		// 	return `https://cdn.svar.dev/icons/filemanager/vivid/${size}/${icon}.svg`
-		// },
-		icons = iconService as unknown as (
-			file: IParsedEntity,
-			size: number
-		) => string | false,
+		icons = fileExtensionIconService,
 		previews = null,
 		...restProps
 	}: {
@@ -66,7 +48,7 @@
 		menuOptions?: (mode: any) => IMenuOption[]
 		extraInfo?: any
 		init?: ((api: any) => void) | null
-		icons?: (file: IParsedEntity, size: number) => string | false
+		icons?: (file: IParsedEntity) => Component<LucideProps>
 		previews?: ((file: IParsedEntity, size: number) => string | false) | null
 		loadData?: ((file: IParsedEntity) => Promise<any>) | null
 		[key: `on${string}`]: ((ev: any) => void) | undefined

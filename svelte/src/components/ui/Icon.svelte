@@ -1,22 +1,36 @@
 <script lang="ts">
+	import type { Component } from 'svelte'
+	import type { LucideProps } from '@lucide/svelte/icons'
+
 	let {
-		name = '',
+		name,
 		spin = false,
 		onclick,
-	}: { name?: string; spin?: boolean; onclick?: () => void } = $props()
+		icon: IconComponent,
+		...iconProps
+	}: {
+		name?: string
+		spin?: boolean
+		onclick?: () => void
+		icon?: Component<LucideProps> | null
+	} & Omit<LucideProps, 'name' | 'onclick' | 'children'> = $props()
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <i
 	data-menu-ignore="true"
-	class="wx-icon wxi-{name} 
+	class="wx-icon {IconComponent ? null : 'wxi-' + name}
 	{spin ? 'wx-spin' : ''} 
 	{onclick ? 'wx-clickable' : ''}"
 	onclick={() => {
 		onclick && onclick()
 	}}
-></i>
+>
+	{#if IconComponent}
+		<IconComponent {...iconProps} />
+	{:else}{null}{/if}</i
+>
 
 <style>
 	.wx-icon {
@@ -38,7 +52,8 @@
 		background-color: var(--wx-background-alt);
 	}
 
-	.wx-spin:before {
+	.wx-spin:before,
+	.wx-spin :global(svg) {
 		color: var(--wx-color-primary);
 		animation-name: spin;
 		animation-duration: 2000ms;

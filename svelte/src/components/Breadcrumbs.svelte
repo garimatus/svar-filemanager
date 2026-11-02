@@ -10,6 +10,7 @@
 		IPanel,
 		TID,
 	} from '@svar-ui/filemanager-store/dist/types/types'
+	import { RefreshCcw } from '@lucide/svelte'
 
 	let { panel }: { panel?: TActivePanel } = $props()
 
@@ -30,20 +31,19 @@
 		})
 	}
 
-	let loading: boolean | null = $state(null)
+	let loading: boolean | null = $state(false)
 
 	$effect(() => {
 		if (files) loading = null
 	})
 
-	function refresh(): void {
+	async function refresh(): Promise<void> {
 		loading = true
-		api.exec('request-data', {
-			id: crumbs[crumbs.length - 1].id,
-		})
-		//if data was not loaded - stop spinner anyway
-		setTimeout(() => {
-			loading = null
+		setTimeout(async () => {
+			await api.exec('request-data', {
+				id: crumbs[crumbs.length - 1].id,
+			})
+			loading = false
 		}, 5000)
 	}
 </script>
@@ -54,7 +54,7 @@
 	data-menu-ignore="true"
 >
 	<div class="wx-refresh-icon">
-		<Icon name="refresh" spin={!!loading} onclick={refresh} />
+		<Icon spin={!!loading} onclick={refresh} icon={RefreshCcw} size={22} />
 	</div>
 	{#each crumbs as crumb, i}
 		{#if i}
