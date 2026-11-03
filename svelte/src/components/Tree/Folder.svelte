@@ -10,7 +10,7 @@
 		TActivePanel,
 	} from '@svar-ui/filemanager-store/dist/types/types'
 
-	import FolderIcon from '@lucide/svelte/icons/folder'
+	import { FolderIcon, ChevronDown, ChevronRight } from '@lucide/svelte/icons'
 
 	const api: IApi = getContext('filemanager-store')
 	const {
@@ -41,13 +41,16 @@
 	data-id={setID(folder.id)}
 	class="wx-folder"
 	class:wx-selected={path === folder.id}
-	style="padding-left: {padding}px"
+	style="padding-left: {padding}px;"
 >
 	{#if hasFolders}
-		<i
-			class="wx-toggle wxi-{open ? 'angle-down' : 'angle-right'}"
-			data-action="toggle"
-		></i>
+		<i class="wx-toggle" data-action="toggle">
+			{#if open}
+				<ChevronDown size={20} />
+			{:else}
+				<ChevronRight size={20} />
+			{/if}
+		</i>
 	{:else}<span class="wx-toggle-placeholder"></span>{/if}
 	<FolderIcon class="wxi-folder" size={20} />
 	<span class="wx-name"> {name} </span>
@@ -87,7 +90,7 @@
 		cursor: pointer;
 		color: var(--wx-icon-color);
 		font-size: 20px;
-		margin-right: 0px;
+		margin-right: 2px;
 	}
 	.wx-toggle-placeholder {
 		width: 23px;
