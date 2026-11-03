@@ -9,6 +9,7 @@
 	} from '@svar-ui/svelte-menu'
 	import { Uploader } from '@svar-ui/svelte-uploader'
 	import { hotkeys } from '@svar-ui/filemanager-store'
+	import type { IFileMenuOption } from '@types'
 
 	import { getContext, tick } from 'svelte'
 
@@ -28,7 +29,7 @@
 		extraInfo,
 	}: {
 		readonly?: boolean
-		menuOptions: (s?: string, item?: IParsedEntity) => IMenuOption[]
+		menuOptions: (s?: string, item?: IParsedEntity) => IFileMenuOption[]
 		extraInfo: any
 	} = $props()
 
@@ -83,12 +84,12 @@
 		id: 'preview',
 	}
 
-	function getReadonlyMenu(type: string): IMenuOption[] {
-		let options: IMenuOption[] = narrowMode ? [previewOption] : []
+	function getReadonlyMenu(type: string): IFileMenuOption[] {
+		let options: IFileMenuOption[] = narrowMode ? [previewOption] : []
 		if (type === 'file')
 			options = [
 				...options,
-				...menuOptions().filter((o: IMenuOption) => o.id === 'download'),
+				...menuOptions().filter((o: IFileMenuOption) => o.id === 'download'),
 			]
 		return options
 	}
@@ -99,7 +100,7 @@
 			'.tree-item.folder'
 		)
 
-		let options: IMenuOption[]
+		let options: IFileMenuOption[]
 
 		if (readonly) {
 			options = getReadonlyMenu(item?.type)
@@ -119,7 +120,7 @@
 								o => o.id === 'paste'
 							)
 						} else {
-							const mOptions = menuOptions(item.type, item)
+							const mOptions: IFileMenuOption[] = menuOptions(item.type, item)
 							if (mOptions) {
 								options = narrowMode ? [previewOption, ...mOptions] : mOptions
 							}
@@ -140,7 +141,7 @@
 		}
 
 		if (options?.length) {
-			options.forEach((o: IMenuOption) => {
+			options.forEach((o: IFileMenuOption) => {
 				if (inTree) o.hotkey = ''
 				if (o.text) o.text = _(o.text)
 				if (o.hotkey) o.subtext = o.hotkey
@@ -152,8 +153,10 @@
 
 	let copy: { action: string; ids: string[] } | null = null
 	function handleMenu(e: IMenuOptionClick): void {
-		const { action, context }: { action?: IMenuOption | null; context?: any } =
-			e
+		const {
+			action,
+			context,
+		}: { action?: IFileMenuOption | null; context?: any } = e
 		if (action) {
 			performAction(action.id.toString(), context, !action.hotkey as boolean)
 		}
