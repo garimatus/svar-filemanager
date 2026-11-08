@@ -86,14 +86,13 @@
 		selectNavigation ? ['/wx-filemanager-parent-link'] : [...selection]
 	)
 
-	function click(id: TID, e: Event): void {
-		//[FIXME] grip is wx-table classname which may change
-		if (e && (e.target as HTMLElement).className.indexOf('wx-grip') !== -1)
+	function click(id: TID, e: PointerEvent | null): void {
+		if (!e || (e.target as HTMLElement).className.indexOf('wx-grip') !== -1) {
 			return
+		}
 
-		const ctrl: boolean =
-			e && ((e as KeyboardEvent).ctrlKey || (e as KeyboardEvent).metaKey)
-		const shift: boolean = e && (e as KeyboardEvent).shiftKey
+		const ctrl: boolean = e && (e.ctrlKey || e.metaKey)
+		const shift: boolean = e && e.shiftKey
 
 		if (id === '/wx-filemanager-parent-link') {
 			if (selection.length && (ctrl || shift)) return
