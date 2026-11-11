@@ -15,8 +15,12 @@
 	let {
 		readonly,
 		menuOptions,
-	}: { readonly?: boolean; menuOptions?: (id: string) => IMenuOption[] } =
-		$props()
+		isAddNewDisabled = true,
+	}: {
+		readonly?: boolean
+		menuOptions?: (id: string) => IMenuOption[]
+		isAddNewDisabled?: boolean
+	} = $props()
 
 	const _: any = (getContext('wx-i18n') as any).getGroup('filemanager')
 	const { showPrompt }: { showPrompt: (options: any) => void } =
@@ -65,7 +69,9 @@
 	{#if !readonly}
 		<div class="wx-button">
 			<DropDownMenu {options} at="bottom-fit" onclick={handleClick}>
-				<Button type="primary block">{_('Add New')}</Button>
+				<Button type="primary block" disabled={isAddNewDisabled}
+					>{_('Add New')}</Button
+				>
 			</DropDownMenu>
 		</div>
 	{/if}
