@@ -8,8 +8,8 @@
 
 	// stores
 	import { EventBus, EventBusRouter, type IEventBus } from '@svar-ui/lib-state'
-	import { DataStore, getMenuOptions } from '@svar-ui/filemanager-store'
-	import type { DataStore as DataStoreType } from '@svar-ui/filemanager-store'
+	import { DataStore, getMenuOptions } from '@filemanager-store'
+	import type { DataStore as DataStoreType } from '@filemanager-store'
 	import Modals from './Modals.svelte'
 	import type {
 		IDrive,
@@ -18,7 +18,7 @@
 		TMode,
 		IMenuOption,
 		IPanel,
-	} from '@svar-ui/filemanager-store/dist/types/types'
+	} from '@filemanager-store/types'
 	import fileExtensionIconService from '../services/fileExtensionIconService'
 	import type { IApi } from '@svar-ui/filemanager-store'
 	import type { LucideProps } from '@lucide/svelte'
@@ -36,9 +36,10 @@
 		init = null,
 		icons = fileExtensionIconService,
 		previews = null,
+		rootId,
 		...restProps
 	}: {
-		data?: any[]
+		data?: IParsedEntity[]
 		mode?: TMode
 		drive?: IDrive | null
 		preview?: boolean
@@ -52,10 +53,12 @@
 		previews?: ((file: IParsedEntity, size: number) => string | false) | null
 		loadData?: ((file: IParsedEntity) => Promise<any>) | null
 		[key: `on${string}`]: ((ev: any) => void) | undefined
+		rootId?: string
 	} = $props()
 
 	// init stores
-	const dataStore: DataStoreType = new DataStore()
+	let rootIdFn = () => rootId || 'root'
+	const dataStore: DataStoreType = new DataStore(undefined, rootIdFn)
 
 	// define event route
 	let firstInRoute: EventBus<any, any> = dataStore.in
@@ -75,7 +78,7 @@
 	export const // state
 		getState: any = dataStore.getState.bind(dataStore),
 		getReactiveState: any = dataStore.getReactive.bind(dataStore),
-		getStores = () => ({ data: dataStore }),
+		getStores: () => { data: DataStoreType } = () => ({ data: dataStore }),
 		// events
 		exec: (name: string, ev: Event) => Promise<any> = firstInRoute.exec,
 		setNext = (ev: IEventBus<any>): any =>
@@ -90,6 +93,7 @@
 	const api: IApi = {
 		getState,
 		getReactiveState,
+		// @ts-expect-error import type mismatch due to modified original class
 		getStores,
 		exec,
 		setNext,

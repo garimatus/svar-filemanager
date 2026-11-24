@@ -1,5 +1,5 @@
 import { Store, EventBus, DataRouter, markReactive } from '@svar-ui/lib-state'
-import type { TDataConfig, TWritableCreator } from '@svar-ui/lib-state'
+import type { TWritableCreator, TDataConfig } from '@svar-ui/lib-state'
 import { sort } from './helpers'
 
 import FileTree from './FileTree'
@@ -10,6 +10,7 @@ import type {
 	TID,
 	IEntity,
 	IParsedEntity,
+	IParsedTreeEntity,
 	TMode,
 	TActivePanel,
 	IPanel,
@@ -21,16 +22,16 @@ export class DataStore extends Store<IData> {
 	public in: EventBus<TMethodsConfig, keyof TMethodsConfig>
 	private _router: DataRouter<IData, IDataConfig, TMethodsConfig>
 
-	constructor(w?: TWritableCreator) {
+	constructor(w?: TWritableCreator, rootId?: () => string) {
 		super({ writable: w as TWritableCreator, async: false })
 
-		const configs = []
+		const configs: TDataConfig = []
 		for (let i = 0; i < 2; i++) {
 			configs.push({
 				in: ['data', `panels.${i}.path`],
 				out: [`panels.${i}._crumbs`],
 				exec: (ctx: TDataConfig) => {
-					const { data, panels } = this.getState()
+					const { data, panels }: IData = this.getState()
 					const update: Partial<IPanel>[] = []
 					update[i] = { _crumbs: data.getParents(panels![i].path!) }
 
@@ -41,8 +42,8 @@ export class DataStore extends Store<IData> {
 				in: ['data', `panels.${i}.path`, `panels.${i}._sorts`, 'search'],
 				out: [`panels.${i}._files`],
 				exec: (ctx: TDataConfig) => {
-					const { data, panels, search } = this.getState()
-					let _files
+					const { data, panels, search }: IData = this.getState()
+					let _files: IParsedEntity[] = []
 
 					if (search) _files = data.findFiles(search, panels![i].path)
 					else _files = data.byId(panels![i].path!)?.data || []
@@ -60,15 +61,18 @@ export class DataStore extends Store<IData> {
 				in: ['data', `panels.${i}.selected`, `panels.${i}._sorts`],
 				out: [`panels.${i}._selected`],
 				exec: (ctx: TDataConfig) => {
-					const { data, panels } = this.getState()
+					const { data, panels }: IData = this.getState()
 
 					const selectedFiles: IParsedEntity[] = []
 					panels![i]!.selected!.forEach((s: TID) => {
-						const file = data.byId(s)
+						const file: IParsedEntity | undefined = data.byId(s)
 						if (file) selectedFiles.push(file)
 					})
 					const { path, _sorts: sorts } = panels![i]
-					const sortedFiles = sort(selectedFiles, sorts![path!])
+					const sortedFiles: IParsedEntity[] = sort(
+						selectedFiles,
+						sorts![path!]
+					)
 
 					const update: Partial<IPanel>[] = []
 					update[i] = { _selected: sortedFiles }
@@ -79,9 +83,10 @@ export class DataStore extends Store<IData> {
 		}
 
 		this._router = new DataRouter(super.setState.bind(this), configs, {
-			data: (v: IParsedEntity[]) => new FileTree(v),
+			data: (v: IParsedEntity[]) => new FileTree(v, rootId?.()),
 		})
-		const inBus = (this.in = new EventBus())
+		const inBus: EventBus<TMethodsConfig, keyof TMethodsConfig> = (this.in =
+			new EventBus())
 
 		inBus.on('select-file', ((ev: TMethodsConfig['select-file']) => {
 			let { toggle, range, panel } = ev
@@ -93,22 +98,22 @@ export class DataStore extends Store<IData> {
 			if (typeof panel === 'undefined') panel = activePanel
 			if (!id) toggle = range = false
 
-			let selected = [...panels[panel].selected]
+			let selected: TID[] = [...panels[panel].selected]
 
 			if (toggle) {
-				const index = selected.indexOf(id!)
+				const index: number = selected.indexOf(id!)
 				if (index === -1) selected.push(id!)
 				else selected.splice(index, 1)
 			} else if (range && panels[panel]._lastSelected) {
 				const files: IParsedEntity[] = panels[panel]._files
 
-				let start = files.findIndex(
+				let start: number = files.findIndex(
 					(f: IParsedEntity) => f.id == panels[panel]._lastSelected
 				)
-				let end = files.findIndex((f: IParsedEntity) => f.id == id)
+				let end: number = files.findIndex((f: IParsedEntity) => f.id == id)
 				if (end < start) [start, end] = [end, start]
 
-				const newSelected = files
+				const newSelected: TID[] = files
 					.slice(start, end + 1)
 					.map((i: IParsedEntity) => i.id)
 
@@ -128,12 +133,12 @@ export class DataStore extends Store<IData> {
 		}) as any)
 
 		inBus.on('set-path', ((ev: TMethodsConfig['set-path']) => {
-			const { id, selected } = ev
-			let { panel } = ev
+			const { id, selected }: { id: TID; selected?: TID[] } = ev
+			let { panel }: { panel?: TActivePanel } = ev
 			const { data, activePanel } = this.getState() as IData & {
 				activePanel: TActivePanel
 			}
-			const item = data.byId(id)
+			const item: IParsedEntity | undefined = data.byId(id)
 			if (item) {
 				const update: Partial<IPanel>[] = []
 				if (typeof panel === 'undefined') panel = activePanel
@@ -156,8 +161,8 @@ export class DataStore extends Store<IData> {
 
 		inBus.on('provide-data', ((ev: TMethodsConfig['provide-data']) => {
 			const { id, data: records } = ev
-			const { mode, data } = this.getState()
-			const item = data.byId(id)
+			const { mode, data }: IData = this.getState()
+			const item: IParsedEntity | undefined = data.byId(id)
 			if (item) {
 				if (!item.lazy) item.data = []
 				item.lazy = false
@@ -179,13 +184,15 @@ export class DataStore extends Store<IData> {
 		}) as any)
 
 		inBus.on('rename-file', ((ev: TMethodsConfig['rename-file']) => {
-			const { id, name } = ev
-			const { data, panels } = this.getState() as IData & { panels: IPanel[] }
-			const item = data.byId(id)
+			const { id, name }: { id: TID; name: string } = ev
+			const { data, panels }: IData = this.getState() as IData & {
+				panels: IPanel[]
+			}
+			const item: IParsedEntity | undefined = data.byId(id)
 
 			if (item.name !== name) {
 				item.name = name
-				const newFile = data.normalizeFile(item, item.parent)
+				const newFile: IParsedTreeEntity = data.normalizeFile(item, item.parent)
 				ev.newId = newFile.id
 				newFile.data = null
 				data.add(newFile)
@@ -199,7 +206,7 @@ export class DataStore extends Store<IData> {
 						})
 				)
 
-				const update: Partial<IPanel>[] = panels.map((p: IPanel) => {
+				const update: Partial<IPanel>[] = panels.map((p: Partial<IPanel>) => {
 					return {
 						selected: p.selected,
 						_crumbs: p._crumbs,
@@ -214,9 +221,9 @@ export class DataStore extends Store<IData> {
 			}
 		}) as any)
 		inBus.on('create-file', ((ev: TMethodsConfig['create-file']) => {
-			const { file, parent } = ev
+			const { file, parent }: { file: IFile; parent: TID } = ev
 			const { data } = this.getState()
-			const newFile = data.normalizeFile(file, parent)
+			const newFile: IParsedTreeEntity = data.normalizeFile(file, parent)
 			newFile.type = file.type || 'file'
 			ev.newId = newFile.id
 
@@ -225,10 +232,12 @@ export class DataStore extends Store<IData> {
 			inBus.exec('select-file', { id: newFile.id })
 		}) as any)
 		inBus.on('delete-files', ((ev: TMethodsConfig['delete-files']) => {
-			const { ids } = ev
-			const { data, panels } = this.getState() as IData & { panels: IPanel[] }
+			const { ids }: { ids: TID[] } = ev
+			const { data, panels }: IData = this.getState() as IData & {
+				panels: IPanel[]
+			}
 
-			const update: Partial<IPanel>[] = panels.map((p: IPanel) => {
+			const update: Partial<IPanel>[] = panels.map((p: Partial<IPanel>) => {
 				return {
 					selected: p.selected,
 					_crumbs: p._crumbs,
@@ -242,7 +251,7 @@ export class DataStore extends Store<IData> {
 			this.setState({ data, panels: update })
 		}) as any)
 		inBus.on('copy-files', ((ev: TMethodsConfig['copy-files']) => {
-			const { ids, target } = ev
+			const { ids, target }: { ids: TID[]; target: TID } = ev
 			if (this._isPlacedIntoSelf(ids, target)) {
 				console.error('You cannot copy a folder into itself')
 				ev.skipProvider = true
@@ -253,7 +262,7 @@ export class DataStore extends Store<IData> {
 				panels: IPanel[]
 				activePanel: TActivePanel
 			}
-			const changes = data.copyFiles(ids, target)
+			const changes: Record<TID, TID> = data.copyFiles(ids, target)
 			ev.newIds = ids.map((id: TID) => changes[id])
 
 			this.setState({ data })
@@ -269,7 +278,7 @@ export class DataStore extends Store<IData> {
 			}
 		}) as any)
 		inBus.on('move-files', ((ev: TMethodsConfig['move-files']) => {
-			const { ids, target } = ev
+			const { ids, target }: { ids: TID[]; target: TID } = ev
 			if (this._isPlacedIntoSelf(ids, target)) {
 				console.error('You cannot move a folder into itself')
 				ev.skipProvider = true
@@ -281,7 +290,7 @@ export class DataStore extends Store<IData> {
 				activePanel: TActivePanel
 			}
 
-			const changes = data.moveFiles(ids, target)
+			const changes: Record<TID, TID> | undefined = data.moveFiles(ids, target)
 			if (changes) {
 				ev.newIds = ids.map((id: TID) => changes[id])
 				const update: Partial<IPanel>[] = panels.map((p: IPanel) => {
@@ -309,13 +318,13 @@ export class DataStore extends Store<IData> {
 
 		let prevState: Partial<IData> | null = null
 		inBus.on('filter-files', ((ev: TMethodsConfig['filter-files']) => {
-			const { text } = ev
+			const { text }: { text: string } = ev
 			if (!text) {
 				if (prevState) this.setState({ ...prevState })
 				return
 			}
 			inBus.exec('select-file', {})
-			const { panels, mode } = this.getState()
+			const { panels, mode }: IData = this.getState()
 			if (!prevState) {
 				prevState = { panels, mode, search: '' }
 			}
@@ -345,7 +354,7 @@ export class DataStore extends Store<IData> {
 		}) as any)
 		inBus.on('sort-files', ((ev: TMethodsConfig['sort-files']) => {
 			const { key, order } = ev
-			let { panel, path } = ev
+			let { panel, path }: { panel?: TActivePanel; path?: string } = ev
 			const { activePanel, panels } = this.getState() as IData & {
 				panels: IPanel[]
 				activePanel: TActivePanel
@@ -368,7 +377,7 @@ export class DataStore extends Store<IData> {
 		this.initOnce()
 	}
 
-	initOnce() {
+	initOnce(): void {
 		const panels: Partial<IPanel>[] = []
 		for (let i = 0; i < 2; i++) {
 			panels[i] = markReactive({
@@ -389,7 +398,7 @@ export class DataStore extends Store<IData> {
 		}
 		this._router.init(upd)
 	}
-	init(state: Partial<IDataConfig>) {
+	init(state: Partial<IDataConfig>): void {
 		const upd: Partial<IDataConfig> = {
 			...state,
 		}
@@ -399,20 +408,20 @@ export class DataStore extends Store<IData> {
 	setState(state: Partial<IData>, ctx?: TDataConfig) {
 		return this._router.setState(state, ctx)
 	}
-	getFile(id: TID) {
-		const { data } = this.getState()
+	getFile(id: TID): IParsedEntity | null {
+		const { data }: IData = this.getState()
 		return data.byId(id) || null
 	}
-	serialize(id: TID) {
-		const { data } = this.getState()
+	serialize(id: TID): IEntity[] | null {
+		const { data }: IData = this.getState()
 		return data.serialize(id)
 	}
 	_updatePanels(
 		update: Partial<IPanel>[],
 		changes: Record<string, TID>,
 		move?: boolean
-	) {
-		const { data } = this.getState()
+	): void {
+		const { data }: IData = this.getState()
 
 		// if files are moved, we should not replace references to them, just remove
 		update.forEach((panel: Partial<IPanel>) => {
@@ -435,7 +444,7 @@ export class DataStore extends Store<IData> {
 			})
 			panel._sorts = sort
 
-			const last = panel._crumbs![panel._crumbs!.length - 1]
+			const last: IParsedEntity = panel._crumbs![panel._crumbs!.length - 1]
 			if (last?.id !== '/') {
 				if (changes[last.id]) panel.path = changes[last.id]
 				//maybe here we should find closest valid path

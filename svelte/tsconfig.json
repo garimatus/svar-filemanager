@@ -25,7 +25,9 @@
 			"@src/*": ["./src/*"],
 			"@components": ["./src/components"],
 			"@components/*": ["./src/components/*"],
-			"@types": ["./src/types/index.d.ts"]
+			"@types": ["./src/types/index.d.ts"],
+			"@filemanager-store": ["../store/src"],
+			"@filemanager-store/*": ["../store/src/*"]
 		}
 	},
 	"include": ["src/**/*.ts", "src/**/*.svelte"]

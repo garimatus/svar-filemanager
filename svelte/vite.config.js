@@ -75,7 +75,12 @@ export default async ({ mode }) => {
 		base,
 		build,
 		publicDir,
-		resolve: { dedupe: ['svelte'] },
+		resolve: {
+			dedupe: ['svelte'],
+			alias: {
+				'@filemanager-store': resolve(__dirname, '../store/src'),
+			},
+		},
 		plugins,
 		server,
 		watch: {

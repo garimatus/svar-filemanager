@@ -15,6 +15,7 @@
 	},
 	"files": [
 		"dist",
+		"src",
 		"license.txt"
 	],
 	"dependencies": {

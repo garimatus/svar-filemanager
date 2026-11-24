@@ -8,17 +8,21 @@ import type {
 } from './types'
 
 export default class FileTree extends DataTree<IParsedEntity> {
-	constructor(files?: IEntity[]) {
-		const root = {
+	public rootId: string
+
+	constructor(files?: IEntity[], rootId?: string) {
+		const name: string = rootId || 'My files'
+		const root: IParsedEntity = {
 			id: '/',
-			name: 'My files',
+			name,
 			open: true,
 			$level: 1,
-			parent: 0 as unknown,
+			parent: 0 as unknown as TID,
 			ext: '',
 			type: 'folder',
 		}
 		super([root as IParsedEntity])
+		this.rootId = name
 		this.parse(files, '/')
 	}
 
